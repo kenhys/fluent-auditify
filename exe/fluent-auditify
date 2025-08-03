@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+here = File.dirname(__FILE__)
+lib_dir = File.expand_path(File.join(here, '..', 'lib'))
+$LOAD_PATH << lib_dir
+require 'fluent/auditify/command/auditify'
+command = Fluent::Auditify::Command::Auditify.new
+exit(command.run(ARGV))
