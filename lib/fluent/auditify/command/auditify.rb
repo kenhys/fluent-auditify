@@ -1,6 +1,7 @@
 require 'optparse'
 require 'fluent/auditify/version'
 require 'fluent/auditify/syntax_checker'
+require 'fluent/log'
 
 module Fluent
   module Auditify
@@ -16,7 +17,9 @@ module Fluent
             verbose: false,
             syntax_check: true,
             upgrade_config: :v1,
-            config: "fluentd.conf"
+            config: "fluentd.conf",
+            log_level: Logger::INFO,
+            color: true
           }
           @parser.on('-u [CONFIG_VERSION]', '--upgrade-config [CONFIG_VERSION]',
                     "Upgrade Fluentd configuration to CONFIG_VERSION (default: v1)", :v1) { |v|
@@ -43,6 +46,9 @@ module Fluent
                     "Run verbosely") { |v|
             @options[:verbose] = v
           }
+          @parser.on('--log-level LOG_LEVEL', "Specify log level (default: INFO)") { |v|
+            @options[:log_level] = Fluent::Auditify::Log.to_logger_level(v)
+          }
         end
 
         def run(argv)
@@ -54,8 +60,12 @@ module Fluent
           end
 
           if @options[:syntax_check]
-            runner = Fluent::Auditify::Checker.new
-            return runner.run
+            opts = {
+              color: @options[:color],
+              log_level: @options[:log_level]
+            }
+            runner = Fluent::Auditify::SyntaxChecker.new(@options)
+            return runner.run(@options)
           elsif @options[:upgrade_config]
           end
           true

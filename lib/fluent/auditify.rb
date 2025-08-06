@@ -5,7 +5,6 @@ require_relative "auditify/syntax_checker"
 
 module Fluent
   module Auditify
-    class Error < StandardError; end
-    # Your code goes here...
+    class DuplicatedPluginError < StandardError; end
   end
 end
