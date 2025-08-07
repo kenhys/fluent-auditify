@@ -7,7 +7,7 @@ require "fluent/auditify/plugin"
 require "test-unit"
 
 def test_fixture_path(path)
-  File.join(File.expand_path('../fluent/fixtures', __FILE__), path)
+  File.join(File.expand_path('../fixtures', __FILE__), path)
 end
 
 def test_mask_charges(options={})
