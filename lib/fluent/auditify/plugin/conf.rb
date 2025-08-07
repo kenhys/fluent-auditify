@@ -30,7 +30,7 @@ module Fluent
           end
         end
 
-        def guilty(message, options)
+        def guilty(message, options={})
           Plugin.guilty(message, options)
         end
       end
