@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["kenhys@gmail.com"]
 
   spec.summary = "Audit tool for your Fluentd configuration"
-  spec.description = "TODO: Write a longer description or delete this line."
+  spec.description = "Audit your Fluentd configuration and raise attention to you"
   spec.homepage = "https://github.com/kenhys/fluent-auditify"
   spec.license = "Apache-2.0"
   spec.required_ruby_version = ">= 2.7.0"
