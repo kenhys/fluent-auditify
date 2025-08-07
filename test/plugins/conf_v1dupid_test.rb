@@ -11,6 +11,10 @@ class Fluent::AuditifyV1ConfDupidTest < Test::Unit::TestCase
     @plugin.instance_variable_set(:@log, @logger)
   end
 
+  teardown do
+    discard
+  end
+
   test "duplicated @id should be detected" do
     conf = test_fixture_path("dup_id.conf")
     @plugin.parse(conf)

@@ -25,6 +25,10 @@ module Fluent
         REGISTRIES
       end
 
+      def self.discard
+        CHARGES.pop(CHARGES.size)
+      end
+
       # This method will be executed when require it
       def self.register_conf(plugin_name, plugin_klass)
         if !plugin_klass.is_a?(Class) and
