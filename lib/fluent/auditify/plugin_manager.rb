@@ -58,31 +58,41 @@ module Fluent
 
       def dispatch(options={})
         @plugins.each do |plugin|
-          if plugin.respond_to?(:supported_platform?)
-            platform = plugin.supported_platform?
-            case platform
-            when :windows
-              unless windows?
-                @logger.debug("Plugin: <#{plugin.class}> does not support Windows")
-                next
-              end
-            when :linux
-              unless linux?
-                @logger.debug("Plugin: <#{plugin.class}> does not support Linux")
-              end
-            else
-              # :any
-            end
-            unless plugin.respond_to?(:parse)
+          unless plugin.respond_to?(:supported_platform?)
+            @logger.warn("Plugin: <#{plugin.class}> must implement supported_platform?")
+            next
+          end
+          platform = plugin.supported_platform?
+          case platform
+          when :windows
+            unless windows?
+              @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
               next
             end
-
-            plugin.instance_variable_set(:@log, @logger)
-            begin
-              plugin.parse(options[:config])
-            rescue => e
-              @logger.error("#{e.message}")
+          when :linux
+            unless linux?
+              @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
             end
+          else
+            # :any
+          end
+          unless plugin.respond_to?(:parse)
+            next
+          end
+          unless plugin.respond_to?(:supported_file_extension?)
+            next
+          end
+
+          ext = plugin.supported_file_extension?
+          unless ext.any? { |v| File.extname(options[:config]) }
+            next
+          end
+
+          plugin.instance_variable_set(:@log, @logger)
+          begin
+            plugin.parse(options[:config])
+          rescue => e
+            @logger.error("#{e.message}")
           end
         end
       end

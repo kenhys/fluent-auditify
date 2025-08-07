@@ -10,6 +10,10 @@ module Fluent
           raise NotImplementedError
         end
 
+        def supported_file_extension?
+          [:conf]
+        end
+
         def parse
           raise NotImplementedError
         end
