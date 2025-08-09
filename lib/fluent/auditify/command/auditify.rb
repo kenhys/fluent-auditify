@@ -19,7 +19,8 @@ module Fluent
             upgrade_config: :v1,
             config: "fluentd.conf",
             log_level: Logger::INFO,
-            color: true
+            color: true,
+            fluentd_version: :auto
           }
           @parser.on('-u [CONFIG_VERSION]', '--upgrade-config [CONFIG_VERSION]',
                     "Upgrade Fluentd configuration to CONFIG_VERSION (default: v1)", :v1) { |v|
@@ -45,6 +46,9 @@ module Fluent
           @parser.on('-v', '--[no-]verbose',
                     "Run verbosely") { |v|
             @options[:verbose] = v
+          }
+          @parser.on('--fluentd-version VERSION', "Specify Fluentd version (default: auto)") { |v|
+            @options[:fluentd_version] = v
           }
           @parser.on('--log-level LOG_LEVEL', "Specify log level (default: INFO)") { |v|
             @options[:log_level] = Fluent::Auditify::Log.to_logger_level(v)
