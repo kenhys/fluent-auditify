@@ -14,6 +14,11 @@ module Fluent
             "#{severity}: #{msg}\n"
           end
         end
+        @color = if options[:color] == :auto
+                   true
+                 else
+                   options[:color]
+                 end
       end
 
       def self.to_logger_level(level)
@@ -27,6 +32,10 @@ module Fluent
         else
           Logger::INFO
         end
+      end
+
+      def enable_color?
+        @color
       end
 
       def trace(message=nil)
