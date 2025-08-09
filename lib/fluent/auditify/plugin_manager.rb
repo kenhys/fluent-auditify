@@ -49,11 +49,11 @@ module Fluent
       end
 
       def windows?
-        !!(RbConfig::CONFIG['host_os'] =~ /mswin|mingw/)
+        %w(mswin mingw).any? { |v| RbConfig::CONFIG['host_os'].include?(v) }
       end
 
       def linux?
-        !!(RbConfig::CONFIG['host_os'] =~ /linux/)
+        RbConfig::CONFIG['host_os'].include?('linux')
       end
 
       def dispatch(options={})
