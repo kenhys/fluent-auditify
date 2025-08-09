@@ -38,28 +38,34 @@ module Fluent
         @color
       end
 
-      def trace(message=nil)
-        @logger.trace(message)
+      def trace(*args, &block)
+        args << block.call if block
+        @logger.trace(args.to_s)
       end
 
-      def debug(message=nil)
-        @logger.debug(message)
+      def debug(*args, &block)
+        args << block.call if block
+        @logger.debug(args.to_s)
       end
 
-      def info(message=nil)
-        @logger.info(message)
+      def info(*args, &block)
+        args << block.call if block
+        @logger.info(args.to_s)
       end
 
       def warn
-        @logger.warn(message)
+        args << block.call if block
+        @logger.warn(args.to_s)
       end
 
       def error(message=nil)
-        @logger.error(message)
+        args << block.call if block
+        @logger.error(args.to_s)
       end
 
-      def fatal
-        @logger.fatal(message)
+      def fatal(*args, &block)
+        args << block.call if block
+        @logger.fatal(args.to_s)
       end
     end
   end
