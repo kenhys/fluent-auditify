@@ -85,7 +85,7 @@ module Fluent
 
           ext = plugin.supported_file_extension?
           ext_symbol = File.extname(options[:config]).delete('.').to_sym
-          unless ext.any? { |v| v == ext_symbol }
+          unless ext.any?(ext_symbol)
             @logger.debug("#{plugin.class} can't handle #{options[:config]}")
             next
           end
