@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency("rubocop", ["~> 1.79.2"])
   spec.add_development_dependency("rubocop-performance", ["~> 1.25"])
+  spec.add_development_dependency("rubocop-fluentd", ["~> 0.2.4"])
 end
