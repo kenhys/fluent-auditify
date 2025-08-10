@@ -53,12 +53,12 @@ module Fluent
         @logger.info(args.to_s)
       end
 
-      def warn
+      def warn(*args, &block)
         args << block.call if block
         @logger.warn(args.to_s)
       end
 
-      def error(message=nil)
+      def error(*args, &block)
         args << block.call if block
         @logger.error(args.to_s)
       end
