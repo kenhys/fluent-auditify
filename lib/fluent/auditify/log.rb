@@ -9,7 +9,18 @@ module Fluent
         @logger.level = options[:log_level] || Logger::INFO
         @logger.formatter = proc do |severity, datetime, progname, msg|
           if options[:color]
-            "#{Term::ANSIColor.on_black{ Term::ANSIColor.red { severity }}}: #{msg}\n"
+            case severity
+            when "FATAL"
+              "#{Term::ANSIColor.on_black{ Term::ANSIColor.red { severity }}}: #{msg}\n"
+            when "ERROR"
+              "#{Term::ANSIColor.on_black{ Term::ANSIColor.bright_red { severity }}}: #{msg}\n"
+            when "WARN"
+              "#{Term::ANSIColor.on_black{ Term::ANSIColor.bright_yellow { severity }}}: #{msg}\n"
+            when "INFO"
+              "#{Term::ANSIColor.on_black{ Term::ANSIColor.green { severity }}}: #{msg}\n"
+            when "DEBUG"
+              "#{Term::ANSIColor.on_black{ Term::ANSIColor.magenta { severity }}}: #{msg}\n"
+            end
           else
             "#{severity}: #{msg}\n"
           end
