@@ -23,7 +23,6 @@ module Fluent
 
       def self.to_logger_level(level)
         case level
-        when "trace" then Logger::TRACE
         when "debug" then Logger::DEBUG
         when "info" then Logger::INFO
         when "warn" then Logger::WARN
@@ -36,11 +35,6 @@ module Fluent
 
       def enable_color?
         @color
-      end
-
-      def trace(*args, &block)
-        args << block.call if block
-        @logger.trace(args.to_s)
       end
 
       def debug(*args, &block)
