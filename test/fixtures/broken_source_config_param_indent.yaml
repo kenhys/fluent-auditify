@@ -1,0 +1,4 @@
+config:
+  - source:
+    $type: http
+    port: 9880
