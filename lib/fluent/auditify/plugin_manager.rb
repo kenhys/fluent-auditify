@@ -56,42 +56,59 @@ module Fluent
         RbConfig::CONFIG['host_os'].include?('linux')
       end
 
+      def supported_plugin?(plugin)
+        unless plugin.respond_to?(:supported_platform?)
+          @logger.info("Plugin: <#{plugin.class}> must implement supported_platform?")
+          return false
+        end
+        platform = plugin.supported_platform?
+        case platform
+        when :windows
+          unless windows?
+            @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
+            return false
+          end
+        when :linux
+          unless linux?
+            @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
+            return false
+          end
+        else
+          # :any
+          true
+        end
+      end
+
+      def skip_plugin?(plugin)
+        unless supported_plugin?(plugin)
+          return true
+        end
+        unless plugin.respond_to?(:parse)
+          return true
+        end
+        unless plugin.respond_to?(:supported_file_extension?)
+          return true
+        end
+        unless plugin.respond_to?(:disabled?)
+          return true
+        end
+        false
+      end
+
       def dispatch(options={})
         @plugins.each do |plugin|
-          unless plugin.respond_to?(:supported_platform?)
-            @logger.warn("Plugin: <#{plugin.class}> must implement supported_platform?")
-            next
-          end
-          platform = plugin.supported_platform?
-          case platform
-          when :windows
-            unless windows?
-              @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
-              next
-            end
-          when :linux
-            unless linux?
-              @logger.debug("Plugin: <#{plugin.class}> does not support #{RbConfig::CONFIG['host_os']}")
-            end
-          else
-            # :any
-          end
-          unless plugin.respond_to?(:parse)
-            next
-          end
-          unless plugin.respond_to?(:supported_file_extension?)
-            next
-          end
+          next if skip_plugin?(plugin)
 
           ext = plugin.supported_file_extension?
           ext_symbol = File.extname(options[:config]).delete('.').to_sym
           unless ext.any?(ext_symbol)
-            @logger.debug("#{plugin.class} can't handle #{options[:config]}")
+            @logger.debug("#{plugin.class} does not support #{options[:config]}")
             next
           end
 
           plugin.instance_variable_set(:@log, @logger)
           begin
+            @logger.debug { "#{plugin.class}\#parse" }
             plugin.parse(options[:config])
           rescue => e
             @logger.error("#{e.message}")
