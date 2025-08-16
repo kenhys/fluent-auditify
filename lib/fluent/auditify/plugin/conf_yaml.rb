@@ -23,6 +23,7 @@ module Fluent::Auditify::Plugin
         root = Fluent::Config::YamlParser.parse(conf)
         self.methods.each do |method|
           if standard_detector?(method)
+            log.debug { "#{self.class}\##{method}" }
             send(method, root, conf)
           end
         end
@@ -31,6 +32,7 @@ module Fluent::Auditify::Plugin
         yaml = YAML.load(file_get_contents(conf))
         self.methods.each do |method|
           if fallback_detector?(method)
+            log.debug { "#{self.class}\##{method}" }
             send(method, yaml, conf)
           end
         end
