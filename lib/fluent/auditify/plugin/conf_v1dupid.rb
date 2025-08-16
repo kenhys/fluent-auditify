@@ -11,7 +11,6 @@ module Fluent::Auditify::Plugin
     end
 
     def parse(conf, options={})
-      log.debug("#{self.class}\#parse")
       begin
         content = file_get_contents(conf)
         root = Fluent::Config::V1Parser.parse(content, conf)
