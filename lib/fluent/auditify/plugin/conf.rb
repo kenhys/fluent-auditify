@@ -6,12 +6,20 @@ module Fluent
     module Plugin
       class Conf < Base
 
+        def initialize
+          super
+        end
+
         def supported_platform?
           raise NotImplementedError
         end
 
         def supported_file_extension?
           [:conf]
+        end
+
+        def disabled?
+          @disabled
         end
 
         def parse

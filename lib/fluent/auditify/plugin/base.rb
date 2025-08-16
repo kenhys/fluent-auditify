@@ -5,6 +5,9 @@ module Fluent
     module Plugin
       class Base
         attr_reader :log
+        def initialize
+          @disabled = false
+        end
       end
     end
   end
