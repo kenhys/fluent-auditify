@@ -23,9 +23,7 @@ module Fluent::Auditify::Plugin
         end
         duplicated_ids.each do |id|
           file_readlines_each(conf) do |line, index|
-            unless line.split.size == 2
-              next
-            end
+            next unless line.split.size == 2
             if line.split == ["@id", id]
               guilty("#{id} is duplicated", {path: conf, line: index + 1, content: line.chomp})
             end
