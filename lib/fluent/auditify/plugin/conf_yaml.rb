@@ -21,23 +21,18 @@ module Fluent::Auditify::Plugin
     def parse(conf)
       begin
         root = Fluent::Config::YamlParser.parse(conf)
-        # detect wrong top level elements
-        if [] == root.elements
-          # no valid root elements here
-          yaml = YAML.load(File.open(conf) do |f| f.read end)
-          invalid_elements = yaml.keys.select do |v|
-            (not %w(system config).include?(v))
+        self.methods.each do |method|
+          if standard_detector?(method)
+            send(method, root, conf)
           end
-          guilty("top level element must be system or config, not <#{invalid_elements.join(',')}>")
         end
       rescue NoMethodError => e
-        # contains something weird indentation
-        yaml = YAML.load(File.open(conf) do |f| f.read end)
-        unless ((yaml.keys == ["config"]) or (yaml.keys == ["system", "config"]))
-          yaml.keys.each do |element|
-            guilty("top level element must be system or config, not <#{element}>")
+        # contains something weird indentation, need to handle exception
+        yaml = YAML.load(file_get_contents(conf))
+        self.methods.each do |method|
+          if fallback_detector?(method)
+            send(method, yaml, conf)
           end
-          #%w(source filter match worker !include).include?(yaml[element])
         end
       end
     end
