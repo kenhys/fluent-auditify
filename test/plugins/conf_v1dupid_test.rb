@@ -6,7 +6,7 @@ require 'fluent/auditify/plugin/conf_v1dupid'
 class Fluent::AuditifyV1ConfDupidTest < Test::Unit::TestCase
 
   setup do
-    @logger = Logger.new(STDOUT)
+    @logger = Logger.new(nil)
     @plugin = Fluent::Auditify::Plugin::V1DuplicatedId.new
     @plugin.instance_variable_set(:@log, @logger)
   end
