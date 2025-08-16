@@ -14,7 +14,11 @@ module Fluent
           charges.each do |entry|
             message = entry.first
             options = entry.last
-            @logger.error("#{bomb} #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
+            if options[:line] and options[:content]
+              @logger.error("#{bomb} #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
+            else
+              @logger.error("#{bomb} #{message} at #{options[:path]}")
+            end
           end
         end
       end
