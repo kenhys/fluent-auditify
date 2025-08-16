@@ -50,27 +50,27 @@ module Fluent
 
       def debug(*args, &block)
         args << block.call if block
-        @logger.debug(args.to_s)
+        @logger.debug(args.join.to_s)
       end
 
       def info(*args, &block)
         args << block.call if block
-        @logger.info(args.to_s)
+        @logger.info(args.join.to_s)
       end
 
       def warn(*args, &block)
         args << block.call if block
-        @logger.warn(args.to_s)
+        @logger.warn(args.join.to_s)
       end
 
       def error(*args, &block)
         args << block.call if block
-        @logger.error(args.to_s)
+        @logger.error(args.join.to_s)
       end
 
       def fatal(*args, &block)
         args << block.call if block
-        @logger.fatal(args.to_s)
+        @logger.fatal(args.join.to_s)
       end
     end
   end
