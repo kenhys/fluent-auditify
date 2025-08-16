@@ -6,6 +6,13 @@ module Fluent::Auditify::Plugin
   class V1DuplicatedId < Conf
     Fluent::Auditify::Plugin.register_conf('v1dupid', self)
 
+    #
+    # The duplicated @id is detected by default, but treated as
+    # Fluent::ConfigError and does not show problematic location
+    # in configuration file.
+    # This plugin demonstrate how to implement simple plugin
+    #
+
     def supported_platform?
       :any
     end
