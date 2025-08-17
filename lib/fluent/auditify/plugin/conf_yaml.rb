@@ -31,6 +31,7 @@ module Fluent::Auditify::Plugin
         end
       rescue NoMethodError => e
         # contains something weird indentation, need to handle exception
+        log.debug { "failed to parse #{conf} with: #{e.message}" }
         yaml = YAML.load(file_get_contents(conf))
         self.methods.each do |method|
           if fallback_detector?(method)
@@ -40,6 +41,7 @@ module Fluent::Auditify::Plugin
         end
       rescue Psych::SyntaxError => e
         # YAML syntax error
+        log.debug { "failed to parse #{conf} with: #{e.message}" }
         self.methods.each do |method|
           if syntax_detector?(method)
             log.debug { "#{self.class}\##{method}" }
