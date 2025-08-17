@@ -123,8 +123,12 @@ module Fluent::Auditify::Plugin
 
       nth = 0
       yaml['config'].each do |element|
+        # check source => nil case
         if element.has_key?('source')
           nth += 1
+          next if element['source']
+        else
+          next
         end
         
         # source: and the following parameter must have intent
@@ -141,7 +145,27 @@ module Fluent::Auditify::Plugin
       end
     end
 
-    def detect_invalid_config_elements(root, conf)
+    #
+    # config:
+    #   - unknown:
+    #       $type: stdout
+    #
+    def detect_wrong_config_element_fallback(yaml, conf)
+      yaml['config'].each_with_index do |element, index|
+        # Even though indent is correct, unknown element raise exception
+        # skip if source exists, and let process to broken config param detector.
+        next if element.has_key?('source')
+        element.keys.each do |key|
+          unless %w(source match filter label).include?(key)
+            file_readlines_each(conf) do |line, i|
+              if line.include?("#{key}:")
+                guilty("config element must be either source, match, filter and label, not <#{key}>",
+                       { path: conf, line: i + 1, content: line})
+              end
+            end
+          end
+        end
+      end
     end
   end
 end
