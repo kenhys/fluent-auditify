@@ -26,6 +26,9 @@ def test_mask_charges(options={})
     if options[:omit_line]
       value.delete(:line)
     end
+    if options[:strip_content]
+      value[:content].strip!
+    end
     masked << [entry.first, value]
   end
   masked

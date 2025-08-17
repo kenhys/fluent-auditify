@@ -1,0 +1,6 @@
+config:
+  - source:
+      $type: forward
+      @tag: foo
+  - match:
+      $type: stdout

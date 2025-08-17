@@ -38,17 +38,31 @@ module Fluent::Auditify::Plugin
             send(method, yaml, conf)
           end
         end
+      rescue Psych::SyntaxError => e
+        # YAML syntax error
+        self.methods.each do |method|
+          if syntax_detector?(method)
+            log.debug { "#{self.class}\##{method}" }
+            send(method, conf)
+          end
+        end
       end
     end
 
     def standard_detector?(method)
       method.to_s.start_with?('detect_') and
-        not method.to_s.end_with?('_fallback')
+        not method.to_s.end_with?('_fallback') and
+        not method.to_s.end_with?('_syntax')
     end
 
     def fallback_detector?(method)
       method.to_s.start_with?('detect_') and
         method.to_s.end_with?('_fallback')
+    end
+
+    def syntax_detector?(method)
+      method.to_s.start_with?('detect_') and
+        method.to_s.end_with?('_syntax')
     end
 
     def unknown_directive?(root)
@@ -164,6 +178,23 @@ module Fluent::Auditify::Plugin
               end
             end
           end
+        end
+      end
+    end
+
+    #
+    # config:
+    #   - source:
+    #       @type: forward
+    #
+    def detect_wrong_at_directive_syntax(conf)
+      file_readlines_each(conf) do |line, i|
+        strip_line = line.strip
+        next unless strip_line.start_with?('@')
+        if %w(@type @label @tag @arg @name @log_level).any? { |v| strip_line.start_with?(v) }
+          at_directive = /@(.+?):.*/.match(strip_line).to_a[1]
+          guilty("use '$#{at_directive}' special YAML element instead of '@#{at_directive}'",
+                 { path: conf, line: i + 1, content: line})
         end
       end
     end
