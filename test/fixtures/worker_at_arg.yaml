@@ -1,0 +1,8 @@
+config:
+  - worker:
+      @arg: 0
+      config:
+        - source:
+            $type: forward
+        - match:
+            $type: stdout

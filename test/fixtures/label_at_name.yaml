@@ -1,0 +1,6 @@
+config:
+  - label:
+      @name: '@SYSTEM'
+      config:
+        - match:
+            $type: stdout

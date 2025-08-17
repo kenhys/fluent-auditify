@@ -1,0 +1,6 @@
+config:
+  - source:
+      $type: forward
+      @log_level: 'debug'
+  - match:
+      $type: stdout

@@ -64,7 +64,10 @@ class Fluent::AuditifyConfYamlTest < Test::Unit::TestCase
   
   data('use $type instead of @type' => ['source_at_type.yaml', 'type', '@type: forward'],
        'use $tag instead of @tag' => ['source_at_tag.yaml', 'tag', '@tag: foo'],
-       'use $label instead of @label' => ['source_at_label.yaml', 'label', "@label: '@SYSTEM'"])
+       'use $label instead of @label' => ['source_at_label.yaml', 'label', "@label: '@SYSTEM'"],
+       'use $log_level instead of @log_level' => ['source_at_log_level.yaml', 'log_level', "@log_level: 'debug'"],
+       'use $arg instead of @arg' => ['worker_at_arg.yaml', 'arg', "@arg: 0"],
+       'use $name instead of @name' => ['label_at_name.yaml', 'name', "@name: '@SYSTEM'"])
   test "wrong @ prefix" do |(path, label, content)|
     conf = test_fixture_path(path)
     @plugin.parse(conf)
