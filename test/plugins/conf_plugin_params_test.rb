@@ -3,7 +3,7 @@
 require_relative '../test_helper'
 require 'fluent/auditify/plugin/conf_plugin_params'
 
-class Fluent::AuditifyV1ConfTest < Test::Unit::TestCase
+class Fluent::AuditifyPluginParamsTest < Test::Unit::TestCase
 
   setup do
     @logger = Logger.new(nil)
@@ -30,7 +30,7 @@ class Fluent::AuditifyV1ConfTest < Test::Unit::TestCase
     data('tail unknown' => ['tail/unknown_directive.conf',
                             [['unknown <unknown> parameter',
                               {content: nil, line: nil, path: 'tail_unknown_param.conf'}]]])
-    test 'input unknown params' do |data|
+    test 'input unknown directive' do |data|
     end
   end
 
