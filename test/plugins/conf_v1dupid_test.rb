@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require 'test_helper'
 require 'fluent/auditify/plugin/conf_v1dupid'
 
 class Fluent::AuditifyV1ConfDupidTest < Test::Unit::TestCase
