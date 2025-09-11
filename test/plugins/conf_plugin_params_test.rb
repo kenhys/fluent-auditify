@@ -20,7 +20,7 @@ class Fluent::AuditifyPluginParamsTest < Test::Unit::TestCase
     # FIXME: support content and location
     data('tail unknown' => ['tail/unknown_param.conf',
                             [['unknown <unknown> parameter',
-                              {content: nil, line: nil, path: 'tail_unknown_param.conf'}]]])
+                              {content: nil, line: nil, path: 'unknown_param.conf'}]]])
     test 'input unknown params' do |data|
       conf, expected = data
       @plugin.parse(test_fixture_path(conf))
@@ -28,8 +28,8 @@ class Fluent::AuditifyPluginParamsTest < Test::Unit::TestCase
     end
 
     data('tail unknown' => ['tail/unknown_directive.conf',
-                            [['unknown <unknown> parameter',
-                              {content: nil, line: nil, path: 'tail_unknown_param.conf'}]]])
+                            [['unknown <unknown> directive',
+                              {content: nil, line: nil, path: 'unknown_directive.conf'}]]])
     test 'input unknown directive' do |data|
     end
   end
