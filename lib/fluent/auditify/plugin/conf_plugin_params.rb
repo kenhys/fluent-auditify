@@ -42,27 +42,31 @@ module Fluent::Auditify::Plugin
     def parse(conf_path, options={})
       if conf_path.end_with?('.yaml') or conf_path.end_with?('.yml')
       else conf_path.end_with?('.conf')
-        content = file_get_contents(conf_path)
-        root = Fluent::Config::V1Parser.parse(content, conf_path)
-        root.elements.collect do |element|
-          case element.name
-          when 'source'
-            # parse
-            type = 'input'
-            plugin_name = element['@type']
-            plugin_spec = plugin_defs(type, plugin_name)
-            element.keys.each do |param|
-              next if param == '@type'
-              unless plugin_spec.keys.include?(param)
-                guilty("unknown <#{param}> parameter", {path: conf_path})
-              end
-            end  
-            #pp plugin_spec
-            # directive such as <parse>
-            element.elements.each do |element|
-              unless plugin_spec.keys.include?(param)
-                guilty("unknown <#{param}> directive", {path: conf_path})
-              end
+        process_conf(conf_path, options)
+      end
+    end
+
+    def process_conf(conf_path, options={})
+      content = file_get_contents(conf_path)
+      root = Fluent::Config::V1Parser.parse(content, conf_path)
+      root.elements.collect do |element|
+        case element.name
+        when 'source'
+          # parse
+          type = 'input'
+          plugin_name = element['@type']
+          plugin_spec = plugin_defs(type, plugin_name)
+          element.keys.each do |param|
+            next if param == '@type'
+            unless plugin_spec.keys.include?(param)
+              guilty("unknown <#{param}> parameter", {path: conf_path})
+            end
+          end
+          #pp plugin_spec
+          # directive such as <parse>
+          element.elements.each do |element|
+            unless plugin_spec.keys.include?(param)
+              guilty("unknown <#{param}> directive", {path: conf_path})
             end
           end
         end
