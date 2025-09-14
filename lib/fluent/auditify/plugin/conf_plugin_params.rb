@@ -58,14 +58,14 @@ module Fluent::Auditify::Plugin
           plugin_spec = plugin_defs(type, plugin_name)
           element.keys.each do |param|
             next if param == '@type'
-            unless plugin_spec.keys.include?(param)
+            unless plugin_spec.key?(param)
               guilty("unknown <#{param}> parameter", {path: conf_path})
             end
           end
           #pp plugin_spec
           # directive such as <parse>
           element.elements.each do |element|
-            unless plugin_spec.keys.include?(element.name)
+            unless plugin_spec.key?(element.name)
               guilty("unknown <#{element.name}> directive", {path: conf_path})
             end
           end
