@@ -126,6 +126,13 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                       [{match: '<match',
                                         body: [{name: '@type', value: 'stdout'}],
                                         pattern: '*.**'}
+                                      ]]],
+         'match embedded code directive' => ["<match \"app.\#{ENV['FOO']}\">\n  @type stdout\n</match>",
+                                     [[1, 1],
+                                      [[2, 3]],
+                                      [{match: '<match',
+                                        body: [{name: '@type', value: 'stdout'}],
+                                        pattern: "\"app.\#{ENV['FOO']}\""}
                                       ]]])
     test 'parse match directive' do |data|
       config, expected = data

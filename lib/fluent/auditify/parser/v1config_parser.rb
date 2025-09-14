@@ -12,7 +12,7 @@ module Fluent
         rule(:integer) { match('[0-9]').repeat(1) }
         rule(:string) { match("[a-zA-Z/_'\"]").repeat(1) }
         rule(:identifier) { match('[A-Za-z0-9_]').repeat(1) }
-        rule(:pattern) { match('[A-Za-z0-9_.*]').repeat(1) }
+        rule(:pattern) { match("[A-Za-z0-9_.*{},#'\"\\[\\]]").repeat(1) }
         rule(:pattern?) { pattern.maybe }
         rule(:empty_line) { space? >> newline }
         rule(:comment) { str('#') >> (newline.absent? >> any).repeat >> newline? }
