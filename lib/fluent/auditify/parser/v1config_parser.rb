@@ -35,19 +35,20 @@ module Fluent
             (comment | key_value | empty_line).repeat.as(:body) >>
             space? >> str('</filter>') >> space? >> newline?
         end
-=begin
-        rule(:match) do
+        # match is reserved word
+        rule(:match_directive) do
           space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space? >> newline? >>
             (comment | key_value | empty_line).repeat.as(:body) >>
             space? >> str('</match>') >> space? >> newline?
         end
+=begin
         rule(:label) do
           space? >> str('<label') >> identifier >> str('>') >> space? >> newline? >>
             key_value.repeat(1) >>
             str('</label>') >> space? >> newline?
         end
 =end
-        rule(:directive) { system | source | filter | empty_line } # | filter | match | label | empty_line }
+        rule(:directive) { system | source | filter | match_directive | empty_line } # | filter | match | label | empty_line }
         rule(:conf) { directive.repeat(1) }
 
         root :conf

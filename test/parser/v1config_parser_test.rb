@@ -99,6 +99,43 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
   end
 
   sub_test_case 'match test cases' do
+    data('match directive' => ["<match>\n  @type stdout\n</match>",
+                                [[1, 1],
+                                 [[2, 3]],
+                                 [{match: '<match',
+                                   body: [{name: '@type', value: 'stdout'}],
+                                   pattern: nil}
+                                 ]]],
+         'match * directive' => ["<match *>\n  @type stdout\n</match>",
+                                  [[1, 1],
+                                   [[2, 3]],
+                                   [{match: '<match',
+                                     body: [{name: '@type', value: 'stdout'}],
+                                     pattern: '*'}
+                                   ]]],
+         'match ** directive' => ["<match **>\n  @type stdout\n</match>",
+                                   [[1, 1],
+                                    [[2, 3]],
+                                    [{match: '<match',
+                                      body: [{name: '@type', value: 'stdout'}],
+                                      pattern: '**'}
+                                    ]]],
+         'match *.** directive' => ["<match *.**>\n  @type stdout\n</match>",
+                                     [[1, 1],
+                                      [[2, 3]],
+                                      [{match: '<match',
+                                        body: [{name: '@type', value: 'stdout'}],
+                                        pattern: '*.**'}
+                                      ]]])
+    test 'parse match directive' do |data|
+      config, expected = data
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      object = @parser.parse(config)
+      assert_equal(expected,
+                   [object.first[:match].line_and_column,
+                    object.first[:body].map { |v| v[:name].line_and_column },
+                    object])
+    end
   end
 
   sub_test_case 'label test cases' do
