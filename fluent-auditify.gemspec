@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "fluentd", "< 2.0"
+  spec.add_dependency "parslet", "~> 2.0.0"
   spec.add_dependency "term-ansicolor", "~> 1.11.2"
 
 end
