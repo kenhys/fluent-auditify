@@ -29,7 +29,7 @@ module Fluent
                 max = options[:line] + 2 < lines.size ? options[:line] + 2 : lines.size - 1
                 content = ""
                 min.upto(max).each_with_index do |line, index|
-                  content << "#{min + index + 1}: #{lines[index].chomp}\n"
+                  content << "#{min + index + 1}: #{lines[min + index].chomp}\n"
                 end
                 @logger.error("#{bomb} #{message} at #{options[:path]}:#{options[:line]}:\n#{content}")
               else
