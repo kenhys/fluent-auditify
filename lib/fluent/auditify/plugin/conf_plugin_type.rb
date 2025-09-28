@@ -3,8 +3,6 @@ require 'fluent/config/yaml_parser'
 require 'fluent/config/v1_parser'
 require 'fluent/auditify/plugin/conf'
 require 'fluent/auditify/parser/v1config_parser'
-require 'yaml'
-require 'term/ansicolor'
 require 'open3'
 
 module Fluent::Auditify::Plugin
