@@ -26,8 +26,12 @@ module Fluent
           raise NotImplementedError
         end
 
-        def file_get_contents(path)
-          File.open(path) do |f| f.read end
+        def file_get_contents(path, lines: false)
+          if lines
+            File.open(path) do |f| f.readlines end
+          else
+            File.open(path) do |f| f.read end
+          end
         end
 
         def file_readlines_each(conf)
