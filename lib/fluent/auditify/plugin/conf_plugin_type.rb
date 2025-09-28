@@ -35,7 +35,7 @@ module Fluent::Auditify::Plugin
           end
         end
       rescue => e
-        log.error("failed to get plugin specification: #{e.message}")
+        log.debug("failed to get plugin specification: #{e.message}")
       end
       spec
     end
