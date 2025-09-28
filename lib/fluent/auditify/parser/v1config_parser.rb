@@ -52,6 +52,19 @@ module Fluent
         rule(:conf) { directive.repeat(1) }
 
         root :conf
+
+        def find_nth_element(object, nth: 1, elements: [])
+          count = 0
+          elements.each do |element|
+            if element[object.intern]
+              count += 1
+              if nth == count
+                return element
+              end
+            end
+          end
+          nil
+        end
       end
     end
   end
