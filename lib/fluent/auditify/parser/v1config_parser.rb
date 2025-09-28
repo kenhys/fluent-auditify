@@ -48,7 +48,7 @@ module Fluent
             str('</label>') >> space? >> newline?
         end
 =end
-        rule(:directive) { system | source | filter | match_directive | empty_line } # | filter | match | label | empty_line }
+        rule(:directive) { system | source | filter | match_directive | empty_line | comment } # | filter | match | label | empty_line }
         rule(:conf) { directive.repeat(1) }
 
         root :conf
