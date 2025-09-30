@@ -7,7 +7,8 @@ gemspec
 
 gem "rake", "~> 13.0"
 
-gem "dotenv", "~> 3.1.8"
+# For Ruby 2.7
+gem "dotenv", "~> 2.8.1"
 gem "test-unit", "~> 3.0"
 
 gem "rubocop", "~> 1.79.2"
