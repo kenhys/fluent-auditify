@@ -26,6 +26,14 @@ module Fluent
           raise NotImplementedError
         end
 
+        def yaml?(path)
+          path.end_with?('.yml') or path.end_with?('.yaml')
+        end
+
+        def conf?(path)
+          path.end_with?('.conf')
+        end
+
         def read_with_include_directive(path)
           contents = []
           File.open(path) do |f|
