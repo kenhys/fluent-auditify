@@ -53,6 +53,9 @@ module Fluent
           @parser.on('--log-level LOG_LEVEL', "Specify log level (default: INFO)") { |v|
             @options[:log_level] = Fluent::Auditify::Log.to_logger_level(v)
           }
+          @parser.on('--report-format FORMAT', "Simplify format in error. (default: auto)") { |v|
+            @options[:reporter] = Fluent::Auditify::Reporter.to_report_format(v)
+          }
         end
 
         def run(argv)
