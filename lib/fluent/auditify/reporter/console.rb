@@ -31,12 +31,12 @@ module Fluent
                 min.upto(max).each_with_index do |line, index|
                   content << "#{min + index + 1}: #{lines[min + index].chomp}\n"
                 end
-                @logger.error("#{bomb} #{message} at #{options[:path]}:#{options[:line]}\n#{content}")
+                @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}\n#{content}")
               else
-                @logger.error("#{bomb} #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
+                @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
               end
             else
-              @logger.error("#{bomb} #{message} at #{options[:path]}")
+              @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}")
             end
           end
         end

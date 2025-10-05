@@ -67,7 +67,7 @@ module Fluent::Auditify::Plugin
             input_spec = plugin_defs('input', plugin_name)
             output_spec = plugin_defs('input', plugin_name)
             if input_spec.empty? and output_spec.empty?
-              guilty("unknown <#{plugin_name}> filter plugin", {path: conf_path})
+              guilty("unknown <#{plugin_name}> filter plugin", {path: conf_path, category: :syntax})
             else
               unless input_spec.empty?
                 guess_type = 'input'
@@ -81,7 +81,7 @@ module Fluent::Auditify::Plugin
                   num = pair[:value].line_and_column.first
                   lines = file_get_contents(conf_path, lines: true)
                   guilty("unknown <#{plugin_name}> filter plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
-                         {path: conf_path, line: num, content: lines[num - 1]})
+                         {path: conf_path, line: num, content: lines[num - 1], category: :syntax})
                 end
               end
             end
