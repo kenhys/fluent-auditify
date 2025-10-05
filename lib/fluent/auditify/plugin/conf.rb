@@ -22,16 +22,47 @@ module Fluent
           @disabled
         end
 
-        def parse
+        def parse(config_path, options={})
           raise NotImplementedError
         end
 
-        def file_get_contents(path, lines: false)
-          if lines
-            File.open(path) do |f| f.readlines end
-          else
-            File.open(path) do |f| f.read end
+        def read_with_include_directive(path)
+          contents = []
+          File.open(path) do |f|
+            f.readlines.each_with_index do |line, index|
+              if line.strip.start_with?('@include')
+                target = File.expand_path(line.split.last, File.dirname(path))
+                contents = (contents << file_get_contents(target, lines: true, include: true)).flattern
+              else
+                contents << {line: index, content: line, path: path}
+              end
+            end
           end
+          contents
+        end
+
+        def file_get_contents(path, lines: false, include: false)
+          contents = []
+          if lines
+            if include
+              contents = read_with_include_directive(path)
+            else
+              File.open(path) do |f|
+                f.readlines.each_with_index do |line, index|
+                  contents << {line: index, content: line, path: path}
+                end
+              end
+            end
+          else
+            if include
+              contents = read_with_include_directive(path).collect do |entry|
+                entry[:content]
+              end.join
+            else
+              contents = File.open(path) do |f| f.read end
+            end
+          end
+          contents
         end
 
         def file_readlines_each(conf)
