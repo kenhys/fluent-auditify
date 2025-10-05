@@ -1,3 +1,6 @@
+require 'diff/lcs'
+require 'pastel'
+
 module Fluent
   module Auditify
     module Reporter
@@ -28,15 +31,36 @@ module Fluent
                 min = options[:line] - 2 > 0 ? options[:line] - 2 : 0
                 max = options[:line] + 2 < lines.size ? options[:line] + 2 : lines.size - 1
                 content = ""
+                suggested = ""
                 min.upto(max).each_with_index do |line, index|
                   content << "#{min + index + 1}: #{lines[min + index].chomp}\n"
+                  if options[:suggest] and options[:line] == min + index + 1
+                    suggested << "#{min + index + 1}: #{options[:suggest].chomp}\n"
+                  else
+                    suggested << "#{min + index + 1}: #{lines[min + index].chomp}\n"
+                  end
                 end
-                @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}\n#{content}")
+                if options[:suggest]
+                  diff_content = ''
+                  Diff::LCS.sdiff(content.chars, suggested.chars).each do |change|
+                    case change.action
+                    when '-'
+                      diff_content << Pastel.new.red(change.old_element)
+                    when '+'
+                      diff_content << Pastel.new.green(change.new_element)
+                    else
+                      diff_content << change.old_element
+                    end
+                  end
+                  @logger.error("#{bomb} [plugin:#{options[:plugin]},category:#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}\n#{diff_content}")
+                else
+                  @logger.error("#{bomb} [plugin:#{options[:plugin]},category:#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}\n#{content}")
+                end
               else
-                @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
+                @logger.error("#{bomb} [plugin:#{options[:plugin]},category:#{options[:category]}] #{message} at #{options[:path]}:#{options[:line]}: #{options[:content]}")
               end
             else
-              @logger.error("#{bomb} [#{options[:category]}] #{message} at #{options[:path]}")
+              @logger.error("#{bomb} [plugin:#{options[:plugin]},category:#{options[:category]}] #{message} at #{options[:path]}")
             end
           end
         end

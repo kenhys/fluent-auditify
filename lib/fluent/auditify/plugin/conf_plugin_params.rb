@@ -30,7 +30,11 @@ module Fluent::Auditify::Plugin
 
     def process_conf(conf_path, options={})
       content = file_get_contents(conf_path)
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      object = @parser.parse(content)
+
       root = Fluent::Config::V1Parser.parse(content, conf_path)
+      nth_source = 0
       root.elements.collect do |element|
         case element.name
         when 'source'
@@ -39,9 +43,28 @@ module Fluent::Auditify::Plugin
           plugin_name = element['@type']
           plugin_spec = plugin_defs(type, plugin_name)
           element.keys.each do |param|
-            next if param == '@type'
             unless plugin_spec.key?(param)
-              guilty("unknown <#{param}> parameter", {path: conf_path, category: :params})
+              if options[:config_version] == :v1
+                next if param == '@type'
+                source = @parser.find_nth_element('source', nth: nth_source + 1, elements: object)
+                source[:body].each do |pair|
+                  if pair[:name] == 'type' and pair[:value] == plugin_name
+                    num = pair[:value].line_and_column.first
+                    lines = file_get_contents(conf_path, lines: true)
+                    guilty("<#{param}> is deprecated, use @type instead",
+                           {path: conf_path, line: num,
+                            content: lines[num],
+                            suggest: lines[num - 1][:content].sub(/type/, '@type'),
+                            category: :params, plugin: :params})
+                  end
+                end
+                next
+              elsif options[:config_version] == :v0
+                next if param == 'type'
+                guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
+                next
+              end
+              guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
             end
           end
           #pp plugin_spec
