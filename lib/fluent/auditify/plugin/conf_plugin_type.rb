@@ -55,7 +55,7 @@ module Fluent::Auditify::Plugin
           plugin_spec = plugin_defs(type, plugin_name)
           if plugin_spec.empty?
             input_spec = plugin_defs('input', plugin_name)
-            output_spec = plugin_defs('input', plugin_name)
+            output_spec = plugin_defs('output', plugin_name)
             if input_spec.empty? and output_spec.empty?
               guilty("unknown <#{plugin_name}> filter plugin", {path: conf_path, category: :syntax, plugin: :type})
             else
