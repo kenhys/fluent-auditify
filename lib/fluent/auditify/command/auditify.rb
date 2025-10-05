@@ -2,6 +2,7 @@ require 'optparse'
 require 'fluent/auditify/version'
 require 'fluent/auditify/syntax_checker'
 require 'fluent/log'
+require 'pastel'
 
 module Fluent
   module Auditify
@@ -70,7 +71,7 @@ module Fluent
           begin
             @parser.parse!(argv)
           rescue OptionParser::ParseError, OptionParser::InvalidOption => e
-            puts "ERROR: fluent-auditify: #{e.message}"
+            puts Pastel.new.bright_red.on_black('ERROR') + ": fluent-auditify: #{e.message}"
             return false
           end
 
