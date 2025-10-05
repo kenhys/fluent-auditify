@@ -109,7 +109,7 @@ module Fluent
           plugin.instance_variable_set(:@log, @logger)
           begin
             @logger.debug { "#{plugin.class}\#parse" }
-            plugin.parse(options[:config])
+            plugin.parse(options[:config], options)
           rescue => e
             @logger.error("#{e.message}")
           end
