@@ -33,7 +33,7 @@ module Fluent::Auditify::Plugin
             next unless line.split.size == 2
             if line.split == ["@id", id]
               guilty("#{id} is duplicated",
-                     {path: conf, line: index + 1, content: line.chomp, category: :syntax})
+                     {path: conf, line: index + 1, content: line.chomp, category: :syntax, plugin: :v1dupid})
             end
           end
         end

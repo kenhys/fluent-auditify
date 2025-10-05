@@ -48,7 +48,7 @@ module Fluent::Auditify::Plugin
           # directive such as <parse>
           element.elements.each do |element|
             unless plugin_spec.key?(element.name)
-              guilty("unknown <#{element.name}> directive", {path: conf_path, category: :params})
+              guilty("unknown <#{element.name}> directive", {path: conf_path, category: :params, plugin: :params})
             end
           end
         end
