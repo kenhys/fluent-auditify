@@ -21,23 +21,6 @@ module Fluent::Auditify::Plugin
       super
     end
 
-    def plugin_defs(type, plugin_name)
-      spec = {}
-      begin
-        cmd = "fluent-plugin-config-format --compact --format json #{type} #{plugin_name}"
-        Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
-          json = JSON.parse(stdout.read)
-          json.each do |klass, defs|
-            next if klass == 'plugin_helpers'
-            next if klass == "Fluent::Plugin::#{type[0].upcase}#{type[1..]}"
-            next if klass.split('::').count != 3
-            spec = defs
-          end
-        end
-      rescue => e
-        log.debug("failed to get plugin specification: #{e.message}")
-      end
-      spec
     end
 
     def parse(conf_path, options={})
