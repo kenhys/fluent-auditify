@@ -38,7 +38,7 @@ module Fluent::Auditify::Plugin
     end
 
     private
-
+    
     def process_conf(conf_path, options={})
       content = file_get_contents(conf_path)
       @parser = Fluent::Auditify::Parser::V1ConfigParser.new
