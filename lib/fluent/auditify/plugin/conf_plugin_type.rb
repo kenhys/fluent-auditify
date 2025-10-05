@@ -80,6 +80,29 @@ module Fluent::Auditify::Plugin
           type = 'output'
           plugin_name = element['@type']
           plugin_spec = plugin_defs(type, plugin_name)
+          if plugin_spec.empty?
+            input_spec = plugin_defs('input', plugin_name)
+            filter_spec = plugin_defs('filter', plugin_name)
+            if input_spec.empty? and filter_spec.empty?
+              guilty("unknown <#{plugin_name}> output plugin", {path: conf_path, category: :syntax, plugin: :type})
+            else
+              unless input_spec.empty?
+                guess_type = 'input'
+              end
+              unless filter_spec.empty?
+                guess_type = 'filter'
+              end
+              output = @parser.find_nth_element('output', nth: index + 1, elements: object)
+              output[:body].each do |pair|
+                if pair[:name] == '@type' and pair[:value] == plugin_name
+                  num = pair[:value].line_and_column.first
+                  lines = file_get_contents(conf_path, lines: true)
+                  guilty("unknown <#{plugin_name}> output plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
+                         {path: conf_path, line: num, content: lines[num - 1], category: :syntax, plugin: :type})
+                end
+              end
+            end
+          end
         end
       end
     end
