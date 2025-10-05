@@ -1,6 +1,0 @@
-config:
-  - source:
-      $type: forward
-      @label: '@SYSTEM'
-  - match:
-      $type: stdout

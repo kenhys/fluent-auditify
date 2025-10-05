@@ -1,5 +1,0 @@
-config:
-  - source:
-      @type: forward
-  - match:
-      $type: stdout
