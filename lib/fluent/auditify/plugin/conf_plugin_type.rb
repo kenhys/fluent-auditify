@@ -41,8 +41,9 @@ module Fluent::Auditify::Plugin
     end
 
     def parse(conf_path, options={})
-      if conf_path.end_with?('.yaml') or conf_path.end_with?('.yml')
-      else conf_path.end_with?('.conf')
+      if yaml?(conf_path)
+        raise NotImplementedError
+      else conf?(conf_path)
         process_conf(conf_path, options)
       end
     end
