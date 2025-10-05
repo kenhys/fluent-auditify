@@ -21,6 +21,12 @@ module Fluent::Auditify::Plugin
       super
     end
 
+    def plugin_info
+      {
+        name: 'plugin_type',
+        summary: 'Detect whether wrong plugin name was specified or not',
+        description: 'Detect whether wrong plugin name was specified or not in each directives. Typically it can detect the case that @type forward in filter directive.'
+      }
     end
 
     def parse(conf_path, options={})
