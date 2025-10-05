@@ -33,6 +33,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "fluentd", "< 2.0"
   spec.add_dependency "parslet", "~> 2.0.0"
+  spec.add_dependency "pastel", "~> 0.8.0"
+  spec.add_dependency "diff-lcs", "~> 1.6.2"
   spec.add_dependency "term-ansicolor", "~> 1.11.2"
 
 end
