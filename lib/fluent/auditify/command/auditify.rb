@@ -20,7 +20,8 @@ module Fluent
             config: "fluentd.conf",
             log_level: Logger::INFO,
             color: true,
-            fluentd_version: :auto
+            fluentd_version: :auto,
+            config_version: :v1
           }
           @parser.on('-u [CONFIG_VERSION]', '--upgrade-config [CONFIG_VERSION]',
                     "Upgrade Fluentd configuration to CONFIG_VERSION (default: v1)", :v1) { |v|
@@ -55,6 +56,13 @@ module Fluent
           }
           @parser.on('--report-format FORMAT', "Simplify format in error. (default: auto)") { |v|
             @options[:reporter] = Fluent::Auditify::Reporter.to_report_format(v)
+          }
+          @parser.on('--config-version VERSION', "Simplify Fluentd configuration version. (default: auto)") { |v|
+            unless %w(v0 v1).include?(v)
+              puts Pastel.new.bright_red.on_black('ERROR') + ": The value of --config-version CONFIG_VERSION must be v0 or v1"
+              exit 1
+            end
+            @options[:config_version] = v.intern
           }
         end
 
