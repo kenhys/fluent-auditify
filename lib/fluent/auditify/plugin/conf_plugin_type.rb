@@ -51,10 +51,10 @@ module Fluent::Auditify::Plugin
 
     def process_conf(conf_path, options={})
       content = file_get_contents(conf_path)
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      object = @parser.parse(content)
       root = Fluent::Config::V1Parser.parse(content, conf_path)
       root.elements.each_with_index do |element, index|
-        @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-        object = @parser.parse(content)
         case element.name
         when 'source'
           # parse
