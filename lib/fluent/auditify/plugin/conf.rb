@@ -94,6 +94,25 @@ module Fluent
           end
           spec
         end
+
+        def surround_text(path, line_num, range: 2, replace: nil)
+          lines = file_get_contents(path)
+          min = line_num - range > 0 ? line - 2 : 0
+          max = line_num + range < lines.size ? line_num + range : lines.size - 1
+          content = ""
+          min.upto(max).each_with_index do |line, index|
+            if replace
+              if min + index + 1 == line_num
+                content << "#{replace}\n"
+              else
+                content << "#{min + index + 1}: #{lines[min + index].chomp}\n"
+              end
+            else
+              content << "#{min + index + 1}: #{lines[min + index].chomp}\n"
+            end
+          end
+          content
+        end
       end
     end
   end
