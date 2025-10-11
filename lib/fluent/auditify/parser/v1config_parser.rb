@@ -25,6 +25,16 @@ module Fluent
             (comment | key_value | empty_line).repeat.as(:body) >>
             space? >> str('</system>') >> space? >> newline?
         end
+        rule(:conf_path) { (match("[^\s\.]+").repeat(1) >> str('.conf')) }
+        rule(:yaml_path) do
+          (match("[^\s\.]+").repeat(1) >> str('.yaml')) |
+            (match("[^\s\.]+").repeat(1) >> str('.yml'))
+        end
+        rule(:include_directive) do
+          space? >> str('@include').as(:include) >> space >> 
+            (conf_path | yaml_path).as(:include_path) >>
+            space? >> newline?
+        end
         rule(:source) do
           space? >> str('<source>').as(:source) >> space? >> newline? >>
             (comment | key_value | empty_line).repeat.as(:body) >>
@@ -48,7 +58,7 @@ module Fluent
             str('</label>') >> space? >> newline?
         end
 =end
-        rule(:directive) { system | source | filter | match_directive | empty_line | comment } # | filter | match | label | empty_line }
+        rule(:directive) { system | source | filter | match_directive | include_directive | empty_line | comment } # | filter | match | label | empty_line }
         rule(:conf) { directive.repeat(1) }
 
         root :conf

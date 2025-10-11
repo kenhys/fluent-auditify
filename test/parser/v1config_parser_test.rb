@@ -149,5 +149,26 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
   end
 
   sub_test_case 'include test cases' do
+    data('top-level @include' => ["@include foo.conf",
+                                  [[1, 1],
+                                   [1, 10],
+                                   [{include: "@include", include_path: "foo.conf"}]]],
+         'top-level @include with newline' => ["@include foo.conf\n",
+                                  [[1, 1],
+                                   [1, 10],
+                                   [{include: "@include", include_path: "foo.conf"}]]],
+         'top-level @include with extra space and newline' => [" @include  foo.conf\n",
+                                  [[1, 2],
+                                   [1, 12],
+                                   [{include: "@include", include_path: "foo.conf"}]]])
+    test 'parse @include' do |data|
+      config, expected = data
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      object = @parser.parse(config)
+      assert_equal(expected,
+                   [object.first[:include].line_and_column,
+                    object.first[:include_path].line_and_column,
+                    object])
+    end
   end
 end
