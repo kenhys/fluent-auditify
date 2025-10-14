@@ -18,7 +18,7 @@ module Fluent
         rule(:comment) { str('#') >> (newline.absent? >> any).repeat >> newline? }
 
         rule(:key) { match('@?[a-zA-Z_]').repeat(1) }
-        rule(:path) { match('[.a-zA-Z_-]+').repeat(1) }
+        rule(:path) { match('[.a-zA-Z_/-]+').repeat(1) }
         rule(:value) { integer | string | path }
         rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >> space? >> newline? }
         rule(:system) do
