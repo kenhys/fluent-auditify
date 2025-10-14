@@ -30,6 +30,24 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     object.first[:body].first[:name].line_and_column,
                     object])
     end
+
+    data('empty string' => ['<system>config_include_dir ""</system>',
+                            [{system: '<system>',
+                              body: [{name: 'config_include_dir', value: '""'}]}]],
+         'path string' => ['<system>config_include_dir "conf.d"</system>',
+                           [{system: '<system>',
+                             body: [{name: 'config_include_dir', value: '"conf.d"'}]}]],
+         'path' => ['<system>config_include_dir conf.d</system>',
+                           [{system: '<system>',
+                             body: [{name: 'config_include_dir', value: 'conf.d'}]}]])
+    test 'parse config_include_dir' do |data|
+      config, expected = data
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      object = @parser.parse(config)
+      assert_equal(expected, [{system: object.first[:system].to_s,
+                               body: [{name: object.first[:body].first[:name].to_s,
+                                       value: object.first[:body].first[:value].to_s}]}])
+    end
   end
 
   sub_test_case 'source test cases' do
