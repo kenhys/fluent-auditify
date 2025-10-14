@@ -1,6 +1,7 @@
 require 'fluent/config/error'
-require 'fluent/auditify/plugin/conf'
 require 'fluent/config/v1_parser'
+require 'fluent/auditify/plugin/conf'
+require 'fluent/auditify/parser/v1config_parser'
 
 module Fluent::Auditify::Plugin
   class V1DuplicatedId < Conf
