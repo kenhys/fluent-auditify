@@ -41,9 +41,18 @@ module Fluent
             (comment | key_value | empty_line).repeat.as(:body) >>
             space? >> str('</source>') >> space? >> newline?
         end
+        rule(:section) do
+          space? >>
+            ((match('<[a-zA-Z0-9_]+').as(:section) >> space >> match('[a-zA-Z0-9_]+').as(:section_arg) >> str('>') >> space? >> newline? >>
+             (comment | key_value | empty_line).repeat.as(:body) >>
+             space? >> match('</[a-zA-Z0-0_]+>') >> space? >> newline?) |
+            (match('<[a-zA-Z0-9_]+>').as(:section) >> space? >> newline? >>
+             (comment | key_value | empty_line).repeat.as(:body) >>
+             space? >> match('</[a-zA-Z0-0_]+>') >> space? >> newline?))
+        end
         rule(:filter) do
           space? >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space? >> newline? >>
-            (comment | key_value | empty_line).repeat.as(:body) >>
+            (comment | key_value | empty_line | section).repeat.as(:body) >>
             space? >> str('</filter>') >> space? >> newline?
         end
         # match is reserved word
