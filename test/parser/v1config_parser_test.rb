@@ -178,7 +178,15 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
          'top-level @include with extra space and newline' => [" @include  foo.conf\n",
                                   [[1, 2],
                                    [1, 12],
-                                   [{include: "@include", include_path: "foo.conf"}]]])
+                                   [{include: "@include", include_path: "foo.conf"}]]],
+         'top-level @include with path separator' => ["@include foo/bar.conf\n",
+                                  [[1, 1],
+                                   [1, 10],
+                                   [{include: "@include", include_path: "foo/bar.conf"}]]],
+         'top-level @include with wildcard' => ["@include foo/*.conf\n",
+                                  [[1, 1],
+                                   [1, 10],
+                                   [{include: "@include", include_path: "foo/*.conf"}]]])
     test 'parse @include' do |data|
       config, expected = data
       @parser = Fluent::Auditify::Parser::V1ConfigParser.new
