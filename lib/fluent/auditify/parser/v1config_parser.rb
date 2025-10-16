@@ -3,8 +3,7 @@ require 'parslet'
 module Fluent
   module Auditify
     module Parser
-      class V1ConfigParser < ::Parslet::Parser
-
+      class V1ConfigBaseParser < ::Parslet::Parser
         rule(:space)  { match('\s').repeat(1) }
         rule(:space?) { space.maybe }
         rule(:newline) { match('[\r\n]').repeat(1) }
@@ -19,18 +18,52 @@ module Fluent
         rule(:space_or_newline) { (match('[ \t]') | str("\n")).repeat }
 
         rule(:key) { match('@?[a-zA-Z_]').repeat(1) }
-        rule(:path) { match('[.a-zA-Z_/-]+').repeat(1) }
+        rule(:path) { match('[.a-zA-Z_/-]').repeat(1) }
         rule(:value) { integer | string | path }
-        rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >> space? >> newline? }
-        rule(:system) do
-          space_or_newline >> str('<system>').as(:system) >> space_or_newline >>
-            (comment | key_value | empty_line).repeat.as(:body) >>
-            space_or_newline >> str('</system>') >> space_or_newline
-        end
+        rule(:key_value) { space_or_newline >> key.as(:name) >> space >> value.as(:value) >> space_or_newline }
+
+        rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
+        rule(:open_tag) { str('<') >> tag_name.as(:name) >>
+                          (space >> tag_name.as(:section_arg)).maybe >> str('>') }
+        rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
+
         rule(:conf_path) { (match("[^\s\.]+").repeat(1) >> str('.conf')) }
         rule(:yaml_path) do
           (match("[^\s\.]+").repeat(1) >> str('.yaml')) |
             (match("[^\s\.]+").repeat(1) >> str('.yml'))
+        end
+      end
+
+      class V1ConfigParamParser < V1ConfigBaseParser
+        # @include key-value-pair conf
+
+        rule(:conf) { space_or_newline >> (comment | key_value | empty_line).repeat.as(:body) }
+
+        root :conf
+      end
+
+      class V1ConfigSectionParser < V1ConfigBaseParser
+        # @include section conf
+        rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
+        rule(:open_tag) { str('<') >> tag_name.as(:name) >>
+                          (space >> tag_name.as(:section_arg)).maybe >> str('>') }
+        rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
+        rule(:section) do
+          space_or_newline >> open_tag.as(:section) >> space_or_newline >>
+            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            space_or_newline >> close_tag >> space_or_newline
+        end
+
+        rule(:conf) { (comment | key_value | empty_line | section.as(:s)).repeat }
+        root :conf
+      end
+
+      class V1ConfigParser < V1ConfigBaseParser
+
+        rule(:system) do
+          space_or_newline >> str('<system>').as(:system) >> space_or_newline >>
+            (comment | key_value | empty_line).repeat.as(:body) >>
+            space_or_newline >> str('</system>') >> space_or_newline
         end
         rule(:include_directive) do
           space_or_newline >> str('@include').as(:include) >> space_or_newline >> 
@@ -42,10 +75,6 @@ module Fluent
             (comment | key_value | empty_line | section).repeat.as(:body) >>
             space_or_newline >> str('</source>') >> space_or_newline
         end
-        rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
-        rule(:open_tag) { str('<') >> tag_name.as(:name) >>
-                          (space >> tag_name.as(:section_arg)).maybe >> str('>') }
-        rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
         rule(:section) do
           space_or_newline >> open_tag.as(:section) >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
