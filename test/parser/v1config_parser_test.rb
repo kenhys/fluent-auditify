@@ -196,5 +196,47 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     object.first[:include_path].line_and_column,
                     object])
     end
+
+    data('top-level @include and included' => ['include/directive.conf',
+                 'include/included_directives.conf',
+                 ['included_directives.conf', [5, 10],
+                  [5, 4], '@type', 'json'],
+                ])
+    test 'include directive test cases' do |data|
+      parent, child, expected = data
+
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      parent = @parser.parse(File.read(test_fixture_path(parent)))
+      child = @parser.parse(File.read(test_fixture_path(child)))
+      assert_equal(expected,
+                   [parent.last[:include_path].to_s,
+                    parent.last[:include_path].line_and_column,
+                    child.first[:body].last[:section][:name].line_and_column,
+                    child.first[:body].last[:body].first[:name].to_s,
+                    child.first[:body].last[:body].first[:value].to_s])
+      #puts e.parse_failure_cause.ascii_tree
+    end
+
+    data('include section and included' => ['include/section.conf',
+                                            'include/included_section.conf',
+                                            ['included_section.conf',
+                                             [7, 12],
+                                             'parse',
+                                             [1, 2]]])
+    test 'include section test cases' do |data|
+      parent_path, child_path, expected = data
+      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      @cparser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
+      puts File.read(test_fixture_path(parent_path))
+      puts File.read(test_fixture_path(child_path))
+      parent = @parser.parse(File.read(test_fixture_path(parent_path)))
+      child = @cparser.parse(File.read(test_fixture_path(child_path)))
+      assert_equal(expected,
+                   [parent.last[:body].last[:value].to_s,
+                    parent.last[:body].last[:value].line_and_column,
+                    child.first[:section][:name].to_s,
+                    child.first[:section][:name].line_and_column
+                   ])
+    end
   end
 end
