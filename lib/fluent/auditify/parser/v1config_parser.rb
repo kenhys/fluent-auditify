@@ -15,16 +15,17 @@ module Fluent
         rule(:pattern) { match("[A-Za-z0-9_.*{},#'\"\\[\\]]").repeat(1) }
         rule(:pattern?) { pattern.maybe }
         rule(:empty_line) { space? >> newline }
-        rule(:comment) { str('#') >> (newline.absent? >> any).repeat >> newline? }
+        rule(:comment) { space? >> str('#') >> (newline.absent? >> any).repeat >> newline? }
+        rule(:space_or_newline) { (match('[ \t]') | str("\n")).repeat }
 
         rule(:key) { match('@?[a-zA-Z_]').repeat(1) }
         rule(:path) { match('[.a-zA-Z_/-]+').repeat(1) }
         rule(:value) { integer | string | path }
         rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >> space? >> newline? }
         rule(:system) do
-          space? >> str('<system>').as(:system) >> space? >> newline? >>
+          space_or_newline >> str('<system>').as(:system) >> space_or_newline >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space? >> str('</system>') >> space? >> newline?
+            space_or_newline >> str('</system>') >> space_or_newline
         end
         rule(:conf_path) { (match("[^\s\.]+").repeat(1) >> str('.conf')) }
         rule(:yaml_path) do
@@ -32,34 +33,34 @@ module Fluent
             (match("[^\s\.]+").repeat(1) >> str('.yml'))
         end
         rule(:include_directive) do
-          space? >> str('@include').as(:include) >> space >> 
+          space_or_newline >> str('@include').as(:include) >> space_or_newline >> 
             (conf_path | yaml_path).as(:include_path) >>
-            space? >> newline?
+            space_or_newline
         end
         rule(:source) do
-          space? >> str('<source>').as(:source) >> space? >> newline? >>
-            (comment | key_value | empty_line).repeat.as(:body) >>
-            space? >> str('</source>') >> space? >> newline?
+          space_or_newline >> str('<source>').as(:source) >> space_or_newline >>
+            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            space_or_newline >> str('</source>') >> space_or_newline
         end
+        rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
+        rule(:open_tag) { str('<') >> tag_name.as(:name) >>
+                          (space >> tag_name.as(:section_arg)).maybe >> str('>') }
+        rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
         rule(:section) do
-          space? >>
-            ((match('<[a-zA-Z0-9_]+').as(:section) >> space >> match('[a-zA-Z0-9_]+').as(:section_arg) >> str('>') >> space? >> newline? >>
-             (comment | key_value | empty_line).repeat.as(:body) >>
-             space? >> match('</[a-zA-Z0-0_]+>') >> space? >> newline?) |
-            (match('<[a-zA-Z0-9_]+>').as(:section) >> space? >> newline? >>
-             (comment | key_value | empty_line).repeat.as(:body) >>
-             space? >> match('</[a-zA-Z0-0_]+>') >> space? >> newline?))
+          space_or_newline >> open_tag.as(:section) >> space_or_newline >>
+            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            space_or_newline >> close_tag >> space_or_newline
         end
         rule(:filter) do
-          space? >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space? >> newline? >>
+          space_or_newline >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
-            space? >> str('</filter>') >> space? >> newline?
+            space_or_newline >> str('</filter>') >> space_or_newline
         end
         # match is reserved word
         rule(:match_directive) do
-          space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space? >> newline? >>
+          space_or_newline >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space? >> str('</match>') >> space? >> newline?
+            space_or_newline >> str('</match>') >> space_or_newline
         end
 =begin
         rule(:label) do
