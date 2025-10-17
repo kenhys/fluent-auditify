@@ -4,6 +4,7 @@ require 'fluent/auditify/parser/v1config_parser'
 require 'fluent/config/v1_parser'
 require 'yaml'
 begin
+  require 'fluent/version'
   if Gem::Version.new(Fluent::VERSION) > Gem::Version.new('1.15.0')
     require 'fluent/config/yaml_parser'
   end
