@@ -20,6 +20,10 @@ jobs:
           - '3.2'
           - '3.3'
           - '3.4'
+        fluentd:
+          - '1.19.0'
+          - '1.16.10'
+          - '1.0.2'
 
     steps:
       - uses: actions/checkout@v4
@@ -27,6 +31,10 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+          bundler-cache: false
+      - name: Install fluentd
+        run: gem install fluentd -v ${{ matrix.fluentd }}
+      - name: Install other gems
+        run: bundle install
       - name: Run the default task
         run: bundle exec rake TESTOPTS='-v'
