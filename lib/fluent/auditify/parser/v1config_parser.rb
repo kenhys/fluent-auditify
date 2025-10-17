@@ -54,7 +54,7 @@ module Fluent
             space_or_newline >> close_tag >> space_or_newline
         end
 
-        rule(:conf) { (comment | key_value | empty_line | section.as(:s)).repeat }
+        rule(:conf) { (comment | key_value | empty_line | section).repeat }
         root :conf
       end
 
