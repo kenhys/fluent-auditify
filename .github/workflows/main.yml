@@ -50,6 +50,15 @@ jobs:
             fluentd: '1.19.0' # 1.19.0 requires Ruby >= 3.2
           - ruby: '2.7'
             fluentd: '1.19.0' # 1.19.0 requires Ruby >= 3.2
+        include:
+          - ruby: '2.7'
+            fluentd: '1.6.3'
+          - ruby: '2.7'
+            fluentd: '1.5.2'
+          - ruby: '2.7'
+            fluentd: '1.4.2'
+          - ruby: '2.7'
+            fluentd: '1.2.6'
     steps:
       - uses: actions/checkout@v4
       - name: Set up Ruby
