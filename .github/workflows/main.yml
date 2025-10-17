@@ -55,8 +55,8 @@ jobs:
         run: gem install fluentd -v ${{ matrix.fluentd }}
       - name: Install other gems
         run: |
-          bundle config set --local path.system true
-          bundle install --system
+          bundle config set --local system true
+          bundle install
       - name: Show current gems
         run: |
           gem env
