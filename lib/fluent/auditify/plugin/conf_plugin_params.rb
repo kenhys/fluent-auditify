@@ -3,7 +3,10 @@ require 'fluent/auditify/plugin/conf'
 require 'fluent/auditify/parser/v1config_parser'
 require 'fluent/config/v1_parser'
 require 'yaml'
-require 'fluent/config/yaml_parser' rescue nil
+begin
+  require 'fluent/config/yaml_parser'
+rescue LoadError
+end
 require 'term/ansicolor'
 
 module Fluent::Auditify::Plugin
