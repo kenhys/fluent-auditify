@@ -24,6 +24,7 @@ jobs:
         working-directory: .github/workflows/
   test:
     runs-on: ubuntu-latest
+    needs: define-matrix
     name: Ruby ${{ matrix.ruby }}
     strategy:
       fail-fast: false
