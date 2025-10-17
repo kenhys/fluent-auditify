@@ -227,8 +227,6 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
       parent_path, child_path, expected = data
       @parser = Fluent::Auditify::Parser::V1ConfigParser.new
       @cparser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
-      puts File.read(test_fixture_path(parent_path))
-      puts File.read(test_fixture_path(child_path))
       parent = @parser.parse(File.read(test_fixture_path(parent_path)))
       child = @cparser.parse(File.read(test_fixture_path(child_path)))
       assert_equal(expected,
