@@ -57,9 +57,11 @@ jobs:
         run: |
           echo "gem 'fluentd', '= ${{ matrix.fluentd }}'" > Gemfile.local
           bundle install
-      - name: Show current gems
+      - name: Show current gem env
         run: |
           gem env
+      - name: Show current gems
+        run: |
           bundle config list
           bundle exec gem list | grep fluentd
           bundle exec fluentd --version
