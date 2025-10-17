@@ -7,6 +7,10 @@ gemspec
 
 gem "rake", "~> 13.0"
 
+if File.exist?('Gemfile.local')
+  eval_gemfile('Gemfile.local')
+end
+
 # For Ruby 2.7
 gem "dotenv", "~> 2.8.1"
 gem "test-unit", "~> 3.0"
