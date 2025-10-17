@@ -57,6 +57,7 @@ jobs:
         run: bundle install
       - name: Show current gems
         run: |
+          gem env
           bundle config list
           bundle exec gem list | grep fluentd
           bundle exec fluentd --version
