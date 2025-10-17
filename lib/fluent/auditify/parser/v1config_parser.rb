@@ -72,7 +72,7 @@ module Fluent
         end
         rule(:source) do
           space_or_newline >> str('<source>').as(:source) >> space_or_newline >>
-            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
             space_or_newline >> str('</source>') >> space_or_newline
         end
         rule(:section) do
