@@ -46,7 +46,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: false
       - name: Install dependency
-        if: ${{ matrix.ruby }} == '2.7'
+        if: ${{ contains(fromJson('["2.7"]'), matrix.ruby) }}
         run: |
           echo "gem 'fiber-storage', '= 1.0.0'" >> Gemfile.local
           echo "gem 'fiber-local', '= 1.0.0'" >> Gemfile.local
