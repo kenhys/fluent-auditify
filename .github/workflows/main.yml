@@ -54,6 +54,9 @@ jobs:
       - name: Install fluentd
         run: gem install fluentd -v ${{ matrix.fluentd }}
       - name: Install other gems
-        run: bundle install
+        run: |
+          bundle install
+          bundle exec gem list | grep fluentd
+          bundle exec fluentd --version
       - name: Run the default task
         run: bundle exec rake TESTOPTS='-v'
