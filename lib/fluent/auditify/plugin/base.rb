@@ -7,6 +7,9 @@ module Fluent
         attr_reader :log
         def initialize
           @disabled = false
+          @options = {
+            config_version: :v1
+          }
         end
       end
     end
