@@ -50,7 +50,7 @@ module Fluent
         rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
         rule(:section) do
           space_or_newline >> open_tag.as(:section) >> space_or_newline >>
-            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
             space_or_newline >> close_tag >> space_or_newline
         end
 
