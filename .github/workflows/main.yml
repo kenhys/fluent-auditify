@@ -48,9 +48,9 @@ jobs:
       - name: Install dependency
         if: ${{ matrix.ruby }} == '2.7'
         run: |
-          bundle exec gem install fiber-storage -v 1.0.0
-          bundle exec gem install fiber-local -v 1.0.0
-          bundle exec gem install console -v 1.19.0
+          gem install fiber-storage -v 1.0.0
+          gem install fiber-local -v 1.0.0
+          gem install console -v 1.19.0
       - name: Install fluentd
         run: gem install fluentd -v ${{ matrix.fluentd }}
       - name: Install other gems
