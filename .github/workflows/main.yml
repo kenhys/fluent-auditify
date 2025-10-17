@@ -63,5 +63,5 @@ jobs:
           bundle config list
           bundle exec gem list | grep fluentd
           bundle exec fluentd --version
-      - name: Run the default task
+      - name: Run test
         run: bundle exec rake TESTOPTS='-v'
