@@ -23,6 +23,7 @@ module Fluent::Auditify::Plugin
     end
 
     def parse(conf_path, options={})
+      @options.merge!(options) unless options.empty?
       if conf_path.end_with?('.yaml') or conf_path.end_with?('.yml')
       else conf_path.end_with?('.conf')
         process_conf(conf_path, options)
@@ -45,7 +46,7 @@ module Fluent::Auditify::Plugin
           plugin_spec = plugin_defs(type, plugin_name)
           element.keys.each do |param|
             unless plugin_spec.key?(param)
-              if options[:config_version] == :v1
+              if @options[:config_version] == :v1
                 next if param == '@type'
                 source = @parser.find_nth_element('source', nth: nth_source + 1, elements: object)
                 source[:body].each do |pair|
@@ -57,6 +58,9 @@ module Fluent::Auditify::Plugin
                             content: lines[num],
                             suggest: lines[num - 1][:content].sub(/type/, '@type'),
                             category: :params, plugin: :params})
+                  elsif pair[:name] == param and not pair.key?(:value)
+                    # only key (use default value)
+                    guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
                   end
                 end
                 next
@@ -65,7 +69,6 @@ module Fluent::Auditify::Plugin
                 guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
                 next
               end
-              guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
             end
           end
           #pp plugin_spec
