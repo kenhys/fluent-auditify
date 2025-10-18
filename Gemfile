@@ -15,7 +15,7 @@ end
 gem "dotenv", "~> 2.8.1"
 gem "test-unit", "~> 3.0"
 
-gem "rubocop", "~> 1.79.2"
+gem "rubocop", "< 2"
 gem "rubocop-fluentd", "~> 0.2.4"
 gem "rubocop-performance", "~> 1.25"
 
