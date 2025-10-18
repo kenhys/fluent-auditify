@@ -17,5 +17,5 @@ gem "test-unit", "~> 3.0"
 
 gem "rubocop", "< 2"
 gem "rubocop-fluentd", "~> 0.2.4"
-gem "rubocop-performance", "~> 1.25"
+gem "rubocop-performance", "< 2"
 
