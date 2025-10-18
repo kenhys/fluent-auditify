@@ -77,11 +77,13 @@ module Fluent::Auditify::Plugin
               end
             end
           end
-          #pp plugin_spec
           # directive such as <parse>
-          element.elements.each do |child|
-            unless plugin_spec.key?(child.name)
-              guilty("unknown <#{child.name}> directive", {path: conf_path, category: :params, plugin: :params})
+          if Gem::Version.new(Fluent::VERSION) >= Gem::Version.new('1.7.0')
+            # Until Fluentd < 1.7.x, spec does not contain supported section
+            element.elements.each do |section|
+              unless plugin_spec.key?(section.name)
+                guilty("unknown <#{section.name}> directive", {path: conf_path, category: :params, plugin: :params})
+              end
             end
           end
         end
