@@ -19,8 +19,12 @@ module Fluent
 
         rule(:key) { str('@').maybe >> match('[a-zA-Z0-9_]').repeat(1) }
         rule(:path) { match('[.a-zA-Z_/-]').repeat(1) }
-        rule(:value) { integer | string | path }
-        rule(:key_value) { space_or_newline >> key.as(:name) >> space >> value.as(:value) >> space_or_newline }
+        rule(:ipv4) {
+          match('[0-9]').repeat(1,3) >>
+            (str('.') >> match('[0-9]').repeat(1,3)).repeat(3) }
+        rule(:value) { ipv4 | integer | string | path }
+        rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >>
+                           space? >> (newline | any.absent?).maybe }
 
         rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
         rule(:open_tag) { str('<') >> tag_name.as(:name) >>
