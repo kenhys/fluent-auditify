@@ -37,7 +37,7 @@ module Fluent
       class V1ConfigParamParser < V1ConfigBaseParser
         # @include key-value-pair conf
 
-        rule(:conf) { space_or_newline >> (comment | key_value | empty_line).repeat.as(:body) }
+        rule(:conf) { (comment | key_value | key.as(:name) | empty_line).repeat.as(:body) }
 
         root :conf
       end
