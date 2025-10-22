@@ -17,6 +17,7 @@ module Fluent
         rule(:comment) { space? >> str('#') >> (newline.absent? >> any).repeat >> newline? }
         rule(:space_or_newline) { (space | newline).repeat(1) }
 
+        rule(:eof?) { (newline | any.absent?).maybe }
         rule(:key) { str('@').maybe >> match('[a-zA-Z0-9_]').repeat(1) }
         rule(:path) { match('[.a-zA-Z_/-]').repeat(1) }
         rule(:ipv4) {
@@ -53,47 +54,46 @@ module Fluent
                           (space >> tag_name.as(:section_arg)).maybe >> str('>') }
         rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
         rule(:section) do
-          space_or_newline >> open_tag.as(:section) >> space_or_newline >>
+          space? >> open_tag.as(:section) >> space_or_newline >>
             (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
-            space_or_newline >> close_tag >> space_or_newline
+            space? >> close_tag >> space? >> eof?
         end
 
-        rule(:conf) { (comment | key_value | empty_line | section).repeat }
+        rule(:conf) { (comment | key_value | key.as(:name) | empty_line | section).repeat }
         root :conf
       end
 
       class V1ConfigParser < V1ConfigBaseParser
 
         rule(:system) do
-          space? >> str('<system>').as(:system) >> space_or_newline >>
+          space? >> str('<system>').as(:system) >> space_or_newline.maybe >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space? >> str('</system>') >> space_or_newline
+            space_or_newline.maybe >> str('</system>') >> space? >> eof?
         end
         rule(:include_directive) do
           space? >> str('@include').as(:include) >> space_or_newline >>
-            (conf_path | yaml_path).as(:include_path) >>
-            space_or_newline
+            (conf_path | yaml_path).as(:include_path) >> eof?
         end
         rule(:source) do
           space? >> str('<source>').as(:source) >> space_or_newline >>
             (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
-            space? >> str('</source>') >> space_or_newline
+            space? >> str('</source>') >> eof?
         end
         rule(:section) do
           space? >> open_tag.as(:section) >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
-            space? >> close_tag >> space_or_newline
+            space? >> close_tag >> eof?
         end
         rule(:filter) do
           space? >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
-            space? >> str('</filter>') >> space_or_newline
+            space? >> str('</filter>') >> eof?
         end
         # match is reserved word
         rule(:match_directive) do
           space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space? >> str('</match>') >> space_or_newline
+            space? >> str('</match>') >> eof?
         end
 =begin
         rule(:label) do
