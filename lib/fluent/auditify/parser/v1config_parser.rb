@@ -4,7 +4,7 @@ module Fluent
   module Auditify
     module Parser
       class V1ConfigBaseParser < ::Parslet::Parser
-        rule(:space)  { match('\s').repeat(1) }
+        rule(:space)  { match('[ \t]').repeat(1) }
         rule(:space?) { space.maybe }
         rule(:newline) { match('[\r\n]').repeat(1) }
         rule(:newline?) { newline.maybe }
