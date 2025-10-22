@@ -5,6 +5,7 @@ require "fluent/auditify"
 require "fluent/auditify/plugin"
 
 require "test-unit"
+require 'pastel'
 
 def test_fixture_path(path)
   File.join(File.expand_path('../fixtures', __FILE__), path)
@@ -32,4 +33,23 @@ def test_mask_charges(options={})
     masked << [entry.first, value]
   end
   masked
+end
+
+def test_parse_with_debug(klass, path)
+  begin
+    parser = klass.new
+    object = parser.parse(File.read(test_fixture_path(path)))
+  rescue => e
+    pastel = Pastel.new
+    puts pastel.white.on_red("[FAIL]") + " class: #{klass}, path: #{path}"
+    puts ">>>\n" + File.read(test_fixture_path(path)) + "<<<\n"
+    puts e.parse_failure_cause.ascii_tree
+  end
+  object
+end
+
+def test_parse_includes(params)
+  parent = test_parse_with_debug(params[:parent_class], params[:parent_path])
+  child = test_parse_with_debug(params[:child_class], params[:child_path])
+  yield parent, child
 end
