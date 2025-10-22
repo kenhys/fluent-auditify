@@ -61,35 +61,35 @@ module Fluent
       class V1ConfigParser < V1ConfigBaseParser
 
         rule(:system) do
-          space_or_newline >> str('<system>').as(:system) >> space_or_newline >>
+          space? >> str('<system>').as(:system) >> space_or_newline >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space_or_newline >> str('</system>') >> space_or_newline
+            space? >> str('</system>') >> space_or_newline
         end
         rule(:include_directive) do
-          space_or_newline >> str('@include').as(:include) >> space_or_newline >> 
+          space? >> str('@include').as(:include) >> space_or_newline >>
             (conf_path | yaml_path).as(:include_path) >>
             space_or_newline
         end
         rule(:source) do
-          space_or_newline >> str('<source>').as(:source) >> space_or_newline >>
+          space? >> str('<source>').as(:source) >> space_or_newline >>
             (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
-            space_or_newline >> str('</source>') >> space_or_newline
+            space? >> str('</source>') >> space_or_newline
         end
         rule(:section) do
-          space_or_newline >> open_tag.as(:section) >> space_or_newline >>
+          space? >> open_tag.as(:section) >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
-            space_or_newline >> close_tag >> space_or_newline
+            space? >> close_tag >> space_or_newline
         end
         rule(:filter) do
-          space_or_newline >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
+          space? >> str('<filter').as(:filter) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line | section).repeat.as(:body) >>
-            space_or_newline >> str('</filter>') >> space_or_newline
+            space? >> str('</filter>') >> space_or_newline
         end
         # match is reserved word
         rule(:match_directive) do
-          space_or_newline >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
+          space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space_or_newline >> str('</match>') >> space_or_newline
+            space? >> str('</match>') >> space_or_newline
         end
 =begin
         rule(:label) do
