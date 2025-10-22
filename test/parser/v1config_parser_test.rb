@@ -20,8 +20,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
         workers 2
       </system>
       EOS
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       expected = [[1, 1],
                   [2, 3],
                   [{system: '<system>', body: [{name: 'workers', value: '2'}]}]]
@@ -42,8 +41,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                              body: [{name: 'config_include_dir', value: 'conf.d'}]}]])
     test 'parse config_include_dir' do |data|
       config, expected = data
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       assert_equal(expected, [{system: object.first[:system].to_s,
                                body: [{name: object.first[:body].first[:name].to_s,
                                        value: object.first[:body].first[:value].to_s}]}])
@@ -59,8 +57,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
         id foo
       </source>
       EOS
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       expected = [[1, 1],
                   [[2, 3],
                    [3, 3],
@@ -107,8 +104,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                       ]]])
     test 'parse filter directive' do |data|
       config, expected = data
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       assert_equal(expected,
                    [object.first[:filter].line_and_column,
                     object.first[:body].map { |v| v[:name].line_and_column },
@@ -154,8 +150,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                       ]]])
     test 'parse match directive' do |data|
       config, expected = data
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       assert_equal(expected,
                    [object.first[:match].line_and_column,
                     object.first[:body].map { |v| v[:name].line_and_column },
@@ -189,8 +184,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                    [{include: "@include", include_path: "foo/*.conf"}]]])
     test 'parse @include' do |data|
       config, expected = data
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      object = @parser.parse(config)
+      object = test_parse_content_with_debug(config)
       assert_equal(expected,
                    [object.first[:include].line_and_column,
                     object.first[:include_path].line_and_column,
@@ -203,11 +197,9 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                   [5, 4], '@type', 'json'],
                 ])
     test 'include directive test cases' do |data|
-      parent, child, expected = data
-
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      parent = @parser.parse(File.read(test_fixture_path(parent)))
-      child = @parser.parse(File.read(test_fixture_path(child)))
+      parent_path, child_path, expected = data
+      parent = test_parse_path_with_debug(parent_path)
+      child = test_parse_path_with_debug(child_path)
       assert_equal(expected,
                    [parent.last[:include_path].to_s,
                     parent.last[:include_path].line_and_column,
@@ -225,10 +217,8 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                              [1, 2]]])
     test 'include section test cases' do |data|
       parent_path, child_path, expected = data
-      @parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      @cparser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
-      parent = @parser.parse(File.read(test_fixture_path(parent_path)))
-      child = @cparser.parse(File.read(test_fixture_path(child_path)))
+      parent = test_parse_path_with_debug(parent_path)
+      child = test_parse_path_with_debug(child_path, klass: Fluent::Auditify::Parser::V1ConfigSectionParser)
       assert_equal(expected,
                    [parent.last[:body].last[:value].to_s,
                     parent.last[:body].last[:value].line_and_column,
