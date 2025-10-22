@@ -35,22 +35,35 @@ def test_mask_charges(options={})
   masked
 end
 
-def test_parse_with_debug(klass, path_or_content)
+def test_parse_with_debug(path_or_content, klass = Fluent::Auditify::Parser::V1ConfigParser)
+  object = if File.exist?(test_fixture_path(path_or_content))
+             test_parse_path_with_debug(path_or_content, klass)
+           else
+             test_parse_content_with_debug(path_or_content, klass)
+           end
+end
+
+def test_parse_content_with_debug(content, klass: Fluent::Auditify::Parser::V1ConfigParser)
   begin
     parser = klass.new
-    if File.exist?(test_fixture_path(path_or_content))
-      object = parser.parse(File.read(test_fixture_path(path_or_content)))
-    else
-      object = parser.parse(path_or_content)
-    end
+    object = parser.parse(content)
   rescue => e
     pastel = Pastel.new
-    puts pastel.white.on_red("[FAIL]") + " class: #{klass}, path: #{path_or_content}"
-    if File.exist?(test_fixture_path(path_or_content))
-      puts ">>>\n" + File.read(test_fixture_path(path_or_content)) + "<<<\n"
-    else
-      puts ">>>\n" + path_or_content.strip + "\n<<<\n"
-    end
+    puts pastel.white.on_red("[FAIL]") + " class: #{klass}"
+    puts ">>>\n" + content.strip + "\n<<<\n"
+    puts e.parse_failure_cause.ascii_tree
+  end
+  object
+end
+
+def test_parse_path_with_debug(path, klass: Fluent::Auditify::Parser::V1ConfigParser)
+  begin
+    parser = klass.new
+    object = parser.parse(File.read(test_fixture_path(path)))
+  rescue => e
+    pastel = Pastel.new
+    puts pastel.white.on_red("[FAIL]") + " class: #{klass}, path: #{path}"
+    puts ">>>\n" + File.read(test_fixture_path(path)) + "<<<\n"
     puts e.parse_failure_cause.ascii_tree
   end
   object
