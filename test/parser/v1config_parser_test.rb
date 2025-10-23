@@ -30,13 +30,13 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     object])
     end
 
-    data('empty string' => ['<system>\nconfig_include_dir ""\n</system>',
+    data('empty string' => ["<system>\nconfig_include_dir \"\"\n</system>",
                             [{system: '<system>',
                               body: [{name: 'config_include_dir', value: '""'}]}]],
-         'path string' => ['<system>\nconfig_include_dir "conf.d"\n</system>',
+         'path string' => ["<system>\nconfig_include_dir \"conf.d\"\n</system>",
                            [{system: '<system>',
                              body: [{name: 'config_include_dir', value: '"conf.d"'}]}]],
-         'path' => ['<system>\nconfig_include_dir conf.d\n</system>',
+         'path' => ["<system>\nconfig_include_dir conf.d\n</system>",
                            [{system: '<system>',
                              body: [{name: 'config_include_dir', value: 'conf.d'}]}]])
     test 'parse config_include_dir' do |data|
@@ -206,7 +206,6 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     child.first[:body].last[:section][:name].line_and_column,
                     child.first[:body].last[:body].first[:name].to_s,
                     child.first[:body].last[:body].first[:value].to_s])
-      #puts e.parse_failure_cause.ascii_tree
     end
 
     data('include section and included' => ['include/section.conf',
