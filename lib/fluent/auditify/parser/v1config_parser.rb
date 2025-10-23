@@ -15,7 +15,7 @@ module Fluent
         rule(:pattern?) { pattern.maybe }
         rule(:empty_line) { space? >> newline }
         rule(:comment) { space? >> str('#') >> (newline.absent? >> any).repeat >> newline? }
-        rule(:space_or_newline) { (space | newline).repeat(1) }
+        rule(:space_or_newline) { match('[ \t\r\n]').repeat(1) }
 
         rule(:eof?) { (newline | any.absent?).maybe }
         rule(:key) { str('@').maybe >> match('[a-zA-Z0-9_]').repeat(1) }
