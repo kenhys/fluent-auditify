@@ -103,8 +103,8 @@ module Fluent
             str('</label>') >> space? >> newline?
         end
 =end
-        rule(:directive) { system | source | filter | match_directive | include_directive | empty_line | comment } # | filter | match | label | empty_line }
-        rule(:conf) { directive.repeat(1) }
+        rule(:directive) { system | source | filter | match_directive | include_directive } # | filter | match | label | empty_line }
+        rule(:conf) { (directive | comment | empty_line).repeat(1) }
 
         root :conf
 
