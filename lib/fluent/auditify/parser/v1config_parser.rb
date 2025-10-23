@@ -25,7 +25,8 @@ module Fluent
             (str('.') >> match('[0-9]').repeat(1,3)).repeat(3) }
         rule(:value) { ipv4 | integer | string | path }
         rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >>
-                           space? >> (newline | any.absent?).maybe }
+                           space? >> newline }
+        rule(:key_line) { space? >> key.as(:name) >> space_or_newline }
 
         rule(:tag_name) { match('[a-zA-Z0-9_]').repeat(1) }
         rule(:open_tag) { str('<') >> tag_name.as(:name) >>
