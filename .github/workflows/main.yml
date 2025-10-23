@@ -70,6 +70,9 @@ jobs:
         run: |
           bundle config list
           bundle exec gem list | grep fluentd
+      - name: Show current version
+        if: ${{ !contains(fromJson('["1.7.4"]'), matrix.fluentd) }}
+        run: |
           bundle exec fluentd --version
       - name: Run test
         # skip incompatible fluentd 1.7.4 or older
