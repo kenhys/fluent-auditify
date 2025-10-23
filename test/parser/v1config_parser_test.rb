@@ -225,5 +225,23 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     child.first[:section][:name].line_and_column
                    ])
     end
+
+    data('include params test cases' => ['include/params.conf',
+                                         'include/included_params.conf',
+                                         ['included_params.conf',
+                                          [7, 12],
+                                          ['port','bind'],
+                                          [[1, 1], [2, 1]]]])
+    test 'include params test cases' do |data|
+      parent_path, child_path, expected = data
+      parent = test_parse_path_with_debug(parent_path)
+      child = test_parse_path_with_debug(child_path, klass: Fluent::Auditify::Parser::V1ConfigParamParser)
+      assert_equal(expected,
+                   [parent.last[:body].last[:value].to_s,
+                    parent.last[:body].last[:value].line_and_column,
+                    child[:body].collect { |v| v[:name].to_s },
+                    child[:body].collect { |v| v[:name].line_and_column }
+                   ])
+    end
   end
 end
