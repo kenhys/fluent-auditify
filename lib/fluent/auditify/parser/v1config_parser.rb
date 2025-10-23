@@ -69,7 +69,7 @@ module Fluent
         rule(:system) do
           space? >> str('<system>').as(:system) >> space_or_newline.maybe >>
             (comment | key_value | empty_line).repeat.as(:body) >>
-            space_or_newline.maybe >> str('</system>') >> space? >> eof?
+            space? >> str('</system>') >> space? >> eof?
         end
         rule(:include_directive) do
           space? >> str('@include').as(:include) >> space_or_newline >>
@@ -77,8 +77,8 @@ module Fluent
         end
         rule(:source) do
           space? >> str('<source>').as(:source) >> space_or_newline >>
-            (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
-            space? >> str('</source>') >> eof?
+            (comment | empty_line | key_value | key_line | section).repeat.as(:body) >>
+            space? >> str('</source>') >> space_or_newline.maybe >> eof?
         end
         rule(:section) do
           space? >> open_tag.as(:section) >> space_or_newline >>
