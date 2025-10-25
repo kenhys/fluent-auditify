@@ -243,5 +243,27 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                     child[:body].collect { |v| v[:name].line_and_column }
                    ])
     end
+
+
+
   end
+
+  sub_test_case 'evaluate @include test cases' do
+    data('evaluate top-level @include and included' => ['include/directive.conf',
+                                                        [['<system>', '@include'],
+                                                         ['<system>', '<source>']]])
+    test 'include directive test cases' do |data|
+      parent_path, expected = data
+      parent = test_parse_path_with_debug(parent_path)
+      parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      modified = parser.eval(parent,
+                             base_dir: File.dirname(test_fixture_path(parent_path)))
+      assert_equal(expected,
+                   [[parent.first[:system].to_s,
+                    parent.last[:include].to_s],
+                   [modified.first[:system].to_s,
+                    modified.last[:source].to_s]])
+    end
+  end
+
 end

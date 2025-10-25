@@ -108,6 +108,23 @@ module Fluent
 
         root :conf
 
+        # expand @include directive
+        def eval(object, base_dir: "", include: true)
+          modified = []
+          object.each_with_index do |element, index|
+            unless element[:include]
+              modified << element
+              next
+            end
+            parser = Fluent::Auditify::Parser::V1ConfigParser.new
+            included =  parser.parse(File.read(File.join(base_dir, element[:include_path])))
+            included.each do |child|
+              modified << child
+            end
+          end
+          modified
+        end
+
         def find_nth_element(object, nth: 1, elements: [])
           count = 0
           elements.each do |element|
