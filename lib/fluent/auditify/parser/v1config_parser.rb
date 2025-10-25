@@ -119,6 +119,7 @@ module Fluent
             parser = Fluent::Auditify::Parser::V1ConfigParser.new
             included =  parser.parse(File.read(File.join(base_dir, element[:include_path])))
             included.each do |child|
+              child[:__PATH__] = File.join(base_dir, element[:include_path])
               modified << child
             end
           end

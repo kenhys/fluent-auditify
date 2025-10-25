@@ -251,7 +251,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
   sub_test_case 'evaluate @include test cases' do
     data('evaluate top-level @include and included' => ['include/directive.conf',
                                                         [['<system>', '@include'],
-                                                         ['<system>', '<source>']]])
+                                                         ['<system>', '<source>', 'included_directives.conf']]])
     test 'include directive test cases' do |data|
       parent_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
@@ -260,9 +260,10 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                              base_dir: File.dirname(test_fixture_path(parent_path)))
       assert_equal(expected,
                    [[parent.first[:system].to_s,
-                    parent.last[:include].to_s],
-                   [modified.first[:system].to_s,
-                    modified.last[:source].to_s]])
+                     parent.last[:include].to_s],
+                    [modified.first[:system].to_s,
+                     modified.last[:source].to_s,
+                     File.basename(modified.last[:__PATH__])]])
     end
   end
 
