@@ -113,7 +113,27 @@ module Fluent
           modified = []
           object.each_with_index do |element, index|
             unless element[:include]
-              modified << element
+              pp element
+              if element[:body].collect { |v| v[:name].to_s }.any?('@include')
+                # include section
+                modified_body = []
+                element[:body].each do |body_element|
+                  if body_element[:name].to_s == '@include'
+                    parser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
+                    parsed = parser.parse(File.read(File.join(base_dir, body_element[:value])))
+                    parsed.each do |elem|
+                      elem[:__PATH__] = File.join(base_dir, body_element[:value])
+                      modified_body << elem
+                    end
+                  else
+                    modified_body << body_element
+                  end
+                end
+                element[:body] = modified_body
+                modified << element
+              else
+                modified << element
+              end
               next
             end
             parser = Fluent::Auditify::Parser::V1ConfigParser.new
