@@ -248,39 +248,45 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
   sub_test_case 'evaluate @include test cases' do
     data('top-level @include' => ['include/directive.conf',
                                   [['<system>', '@include'],
-                                   ['<system>', '<source>', 'included_directives.conf']]])
+                                   ['<system>', '<source>',
+                                    'directive.conf',
+                                    'included_directives.conf']]])
     test 'evaluate include directive test cases' do |data|
       parent_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
       parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      modified = parser.eval(parent,
+      modified = parser.eval(parent, path: File.basename(parent_path),
                              base_dir: File.dirname(test_fixture_path(parent_path)))
       assert_equal(expected,
                    [[parent.first[:system].to_s,
                      parent.last[:include].to_s],
                     [modified.first[:system].to_s,
                      modified.last[:source].to_s,
-                     File.basename(modified.last[:__PATH__])]])
+                     modified.first[:__PATH__],
+                     modified.last[:__PATH__]]])
     end
 
     data('include section' => ['include/section.conf',
                                [['<system>', '<source>'],
                                 ['<system>', '<source>',
+                                 'section.conf', 'section.conf',
                                  'included_section.conf', 'included_section.conf', 'included_section.conf']]])
     test 'evaluate include section test cases' do |data|
       parent_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
       parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      modified = parser.eval(parent,
+      modified = parser.eval(parent, path: File.basename(parent_path),
                              base_dir: File.dirname(test_fixture_path(parent_path)))
       assert_equal(expected,
                    [[parent.first[:system].to_s,
                      parent.last[:source].to_s],
                     [modified.first[:system].to_s,
                      modified.last[:source].to_s,
-                     File.basename(modified.last[:body][1][:__PATH__]),
-                     File.basename(modified.last[:body][2][:__PATH__]),
-                     File.basename(modified.last[:body][3][:__PATH__])]])
+                     modified.first[:__PATH__],
+                     modified.last[:__PATH__],
+                     modified.last[:body][1][:__PATH__],
+                     modified.last[:body][2][:__PATH__],
+                     modified.last[:body][3][:__PATH__]]])
     end
 
 =begin

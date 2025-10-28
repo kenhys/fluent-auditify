@@ -109,11 +109,12 @@ module Fluent
         root :conf
 
         # expand @include directive
-        def eval(object, base_dir: "", include: true)
+        def eval(object, base_dir: "", path: "", include: true)
           modified = []
           object.each_with_index do |element, index|
+            element[:__BASE__] = base_dir
+            element[:__PATH__] = path
             unless element[:include]
-              pp element
               if element[:body].collect { |v| v[:name].to_s }.any?('@include')
                 # include section
                 modified_body = []
@@ -122,7 +123,7 @@ module Fluent
                     parser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
                     parsed = parser.parse(File.read(File.join(base_dir, body_element[:value])))
                     parsed.each do |elem|
-                      elem[:__PATH__] = File.join(base_dir, body_element[:value])
+                      elem[:__PATH__] = body_element[:value]
                       modified_body << elem
                     end
                   else
@@ -139,7 +140,8 @@ module Fluent
             parser = Fluent::Auditify::Parser::V1ConfigParser.new
             included =  parser.parse(File.read(File.join(base_dir, element[:include_path])))
             included.each do |child|
-              child[:__PATH__] = File.join(base_dir, element[:include_path])
+              child[:__PATH__] = element[:include_path]
+              child[:__BASE__] = base_dir
               modified << child
             end
           end
