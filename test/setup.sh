@@ -20,7 +20,7 @@ function setup_rvm_gemset() {
     fi
 }
 
-function setup_fluentd() {
+function setup_gems() {
     FLUENTD_VERSION=$1
     version=$(ruby -v | cut -d' ' -f2)
     rm -f Gemfile.local Gemfile.lock
@@ -36,88 +36,99 @@ function setup_fluentd() {
             ;;
     esac
     case $FLUENTD_VERSION in
-        v1.19)
+        1.19*)
             echo "gem 'fluentd', '= 1.19.0'" >> Gemfile.local
             ;;
-        v1.18)
+        1.18*)
             echo "gem 'fluentd', '= 1.18.0'" >> Gemfile.local
             ;;
-        v1.17)
+        1.17*)
             echo "gem 'fluentd', '= 1.17.1'" >> Gemfile.local
             ;;
-        v1.16)
+        1.16*)
             echo "gem 'fluentd', '= 1.16.10'" >> Gemfile.local
             ;;
-        v1.15)
+        1.15*)
             echo "gem 'fluentd', '= 1.15.3'" >> Gemfile.local
             ;;
-        v1.14)
+        1.14*)
             echo "gem 'fluentd', '= 1.14.6'" >> Gemfile.local
             ;;
-        v1.13)
+        1.13*)
             echo "gem 'fluentd', '= 1.13.3'" >> Gemfile.local
             ;;
-        v1.12)
+        1.12*)
             echo "gem 'fluentd', '= 1.12.4'" >> Gemfile.local
             ;;
-        v1.11)
+        1.11*)
             echo "gem 'fluentd', '= 1.11.5'" >> Gemfile.local
             ;;
-        v1.10)
+        1.10*)
             echo "gem 'fluentd', '= 1.10.4'" >> Gemfile.local
             ;;
-        v1.9)
+        1.9*)
             echo "gem 'fluentd', '= 1.9.3'" >> Gemfile.local
             ;;
-        v1.8)
+        1.8*)
             echo "gem 'fluentd', '= 1.8.1'" >> Gemfile.local
             ;;
-        v1.7)
+        1.7*)
             echo "gem 'fluentd', '= 1.7.4'" >> Gemfile.local
             ;;
-        v1.6)
+        1.6*)
             echo "gem 'fluentd', '= 1.6.3'" >> Gemfile.local
             ;;
-        v1.5)
+        1.5*)
             echo "gem 'fluentd', '= 1.5.2'" >> Gemfile.local
             ;;
-        v1.4)
+        1.4*)
             echo "gem 'fluentd', '= 1.4.2'" >> Gemfile.local
             ;;
-        v1.3)
+        1.3*)
             echo "gem 'fluentd', '= 1.3.3'" >> Gemfile.local
             ;;
-        v1.2)
+        1.2*)
             echo "gem 'fluentd', '= 1.2.6'" >> Gemfile.local
             ;;
-        v1.0)
+        1.1*)
+            echo "gem 'fluentd', '= 1.1.3'" >> Gemfile.local
+            ;;
+        1.0*)
             echo "gem 'fluentd', '= 1.0.2'" >> Gemfile.local
             ;;
-        v0.12)
+        0.14*)
+            echo "gem 'fluentd', '= 0.14.25'" >> Gemfile.local
+            ;;
+        0.12*)
             echo "gem 'fluentd', '= 0.12.43'" >> Gemfile.local
             ;;
     esac
     cat Gemfile.local
     bundle install
     if [ $? -ne 0 ]; then
-        echo "\e[37;41m[FAIL]\e[0m Install dependency gems with bundler."
+        echo -e "\e[37;41m[FAIL]\e[0m Install dependency gems with bundler."
     else
-        echo "\e[37;42m[PASS]\e[0m Install dependency gems with bundler."
+        echo -e "\e[37;42m[PASS]\e[0m Install dependency gems with bundler."
     fi
 }
 
 check_ruby_version
 
 case $1 in
-    v*)
+    *[0-9.]*)
         short_version=$(echo "$1" | sed 's/[.]//g')
-        gemset=$(rvm gemset list | grep "fluentd${short_version}-auditify")
-        if [ -n "${gemset}" ]; then
-            rvm use $RUBYVER@fluentd${short_version}-auditify
+        if [ -n "$CI" ]; then
+            # use setup-ruby
+            echo -e "\e[37;42m[PASS]\e[0m Use setup-ruby."
         else
-            setup_rvm_gemset fluentd${short_version}-auditify
+            gemset=$(rvm gemset list | grep "fluentd${short_version}-auditify")
+            if [ -n "${gemset}" ]; then
+                rvm use $RUBYVER@fluentd${short_version}-auditify
+            else
+                setup_rvm_gemset fluentd${short_version}-auditify
+            fi
         fi
-        setup_fluentd $1
+        setup_gems $1
         ;;
     *)
         echo "Usage: source test/setup.sh v1.19"

@@ -1,0 +1,119 @@
+name: Linux Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.head_ref || github.sha }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  mainline:
+    runs-on: ubuntu-latest
+    name: ruby:${{ matrix.ruby }} fluentd:${{ matrix.fluentd}}
+    strategy:
+      fail-fast: false
+      #matrix: ${{ fromJSON(needs.define-matrix.outputs.matrix) }}
+      matrix:
+        ruby:
+          - '3.4'
+          - '3.3'
+          - '3.2'
+        fluentd:
+          - '1.19.0'
+          - '1.16.10'
+    steps: &common_ci_test
+      - uses: actions/checkout@v5
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+      - name: Setup gem sets
+        run: |
+          CI=true source ./test/setup.sh ${{ matrix.fluentd }}
+      - name: Show current gem env
+        run: |
+          gem env
+      - name: Show current gems
+        run: |
+          bundle config list
+          bundle exec gem list | grep fluentd
+      - name: Show current version
+        run: |
+          bundle exec fluentd --version
+      - name: Run test
+        run: bundle exec rake TESTOPTS='-v'
+          
+  legacy:
+    runs-on: ubuntu-latest
+    name: ruby:${{ matrix.ruby }} fluentd:${{ matrix.fluentd}}
+    needs: mainline
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.4'
+          - '3.3'
+          - '3.2'
+        fluentd:
+          - '1.18.0'
+          - '1.17.1'
+          - '1.15.3'
+          - '1.14.6'
+          - '1.13.3'
+          - '1.12.4'
+          - '1.11.5'
+          - '1.10.4'
+          - '1.9.3'
+          - '1.8.1'
+#          - '1.8.0' # fixed config_param wrong number of arguments
+#          - '1.7.4' # broken config_param wrong number of arguments
+#
+#          - '1.6.3'
+#          - '1.5.2'
+#          - '1.4.2'
+#          - '1.2.6'
+#          - '1.0.2'
+          - '0.12.43'
+    steps: *common_ci_test
+
+  eol:
+    runs-on: ubuntu-latest
+    name: ruby:${{ matrix.ruby }} fluentd:${{ matrix.fluentd}}
+    needs: legacy
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby:
+          - '3.1'
+          - '3.0'
+          - '2.7'
+        fluentd:
+          # 1.19.0 requires Ruby >= 3.2
+          - '1.18.0'
+          - '1.17.1'
+          - '1.15.3'
+          - '1.14.6'
+          - '1.13.3'
+          - '1.12.4'
+          - '1.11.5'
+          - '1.10.4'
+          - '1.9.3'
+          - '1.8.1'
+#          - '1.8.0' # fixed config_param wrong number of arguments
+#          - '1.7.4' # broken config_param wrong number of arguments
+#
+#          - '1.6.3'
+#          - '1.5.2'
+#          - '1.4.2'
+#          - '1.2.6'
+#          - '1.0.2'
+#          - '0.14.25' broken with ruby 3.0 and 3.1
+          - '0.12.43'
+          - '0.10.62'
+    steps: *common_ci_test
