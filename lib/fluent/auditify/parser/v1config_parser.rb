@@ -10,7 +10,7 @@ module Fluent
         rule(:newline?) { newline.maybe }
         rule(:integer) { match('[0-9]').repeat(1) }
         rule(:string) { str('"') >> match('[^"]').repeat >> str('"') }
-        rule(:identifier) { match('[A-Za-z0-9_]').repeat(1) }
+        rule(:identifier) { match('[A-Za-z0-9_-]').repeat(1) }
         rule(:pattern) { match("[A-Za-z0-9_.*{},#'\"\\[\\]]").repeat(1) }
         rule(:pattern?) { pattern.maybe }
         rule(:empty_line) { space? >> newline }
@@ -23,7 +23,7 @@ module Fluent
         rule(:ipv4) {
           match('[0-9]').repeat(1,3) >>
             (str('.') >> match('[0-9]').repeat(1,3)).repeat(3) }
-        rule(:value) { ipv4 | integer | string | path }
+        rule(:value) { ipv4 | integer | string | identifier | path }
         rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >>
                            space? >> newline }
         rule(:key_line) { space? >> key.as(:name) >> space_or_newline }
