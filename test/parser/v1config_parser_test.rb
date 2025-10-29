@@ -159,6 +159,16 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
   end
 
   sub_test_case 'label test cases' do
+    data('match directive' => ["<label @foo>\n  <match *>\n@type stdout\n  </match>\n</label>",
+                               ['<label', '@foo', [1, 8]]])
+    test 'parse label directive' do |data|
+      config, expected = data
+      object = test_parse_content_with_debug(config)
+      assert_equal(expected,
+                   [object.first[:label].to_s,
+                    object.first[:name].to_s,
+                    object.first[:name].line_and_column])
+    end
   end
 
   sub_test_case 'include test cases' do

@@ -96,14 +96,12 @@ module Fluent
             (comment | key_value | empty_line).repeat.as(:body) >>
             space? >> str('</match>') >> eof?
         end
-=begin
         rule(:label) do
-          space? >> str('<label') >> identifier >> str('>') >> space? >> newline? >>
-            key_value.repeat(1) >>
-            str('</label>') >> space? >> newline?
+          space? >> str('<label').as(:label) >> space? >> key.as(:name) >> str('>') >> space_or_newline >>
+            (comment | filter | match_directive).repeat.as(:body) >>
+            space? >> str('</label>') >> eof?
         end
-=end
-        rule(:directive) { system | source | filter | match_directive | include_directive } # | filter | match | label | empty_line }
+        rule(:directive) { system | source | filter | match_directive | include_directive | label} # | filter | match | label | empty_line }
         rule(:conf) { (directive | comment | empty_line).repeat(1) }
 
         root :conf
