@@ -17,6 +17,8 @@ module Fluent
 
       CHARGES = []
 
+      ARTIFACT = []
+
       def self.charges
         CHARGES
       end
@@ -41,6 +43,13 @@ module Fluent
       def self.guilty(level, message, options={})
         CHARGES.push([level, message, options])
       end
+
+      def self.polish(object)
+        ARTIFACT.push(object)
+      end
+
+      def self.artifact
+        ARTIFACT.pop
       end
     end
   end

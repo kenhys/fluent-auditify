@@ -84,6 +84,13 @@ module Fluent
         def guilty(level, message, options={})
           Plugin.guilty(level, message, options)
         end
+
+        def polish(object)
+          Plugin.polish(object)
+        end
+
+        def artifact
+          Plugin.artifact
         end
 
         def plugin_defs(type, plugin_name)
