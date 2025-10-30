@@ -81,8 +81,9 @@ module Fluent
           end
         end
 
-        def guilty(message, options={})
-          Plugin.guilty(message, options)
+        def guilty(level, message, options={})
+          Plugin.guilty(level, message, options)
+        end
         end
 
         def plugin_defs(type, plugin_name)

@@ -38,8 +38,9 @@ module Fluent
         CONF_REGISTRY.register(:conf, plugin_name, plugin_klass)
       end
 
-      def self.guilty(message, options={})
-        CHARGES.push([message, options])
+      def self.guilty(level, message, options={})
+        CHARGES.push([level, message, options])
+      end
       end
     end
   end
