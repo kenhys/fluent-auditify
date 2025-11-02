@@ -6,7 +6,7 @@ module Fluent
       class V1ConfigBaseParser < ::Parslet::Parser
         rule(:space)  { match('[ \t]').repeat(1) }
         rule(:space?) { space.maybe }
-        rule(:newline) { (str("\r\n") | str("\n") | str("\r")).repeat(1) }
+        rule(:newline) { str("\r\n") | str("\n") | str("\r") }
         rule(:newline?) { newline.maybe }
         rule(:integer) { match('[0-9]').repeat(1) }
         rule(:string) { str('"') >> match('[^"]').repeat >> str('"') }
