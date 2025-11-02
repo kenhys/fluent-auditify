@@ -72,7 +72,7 @@ module Fluent
             space? >> str('</system>') >> space? >> eof?
         end
         rule(:include_directive) do
-          space? >> str('@include').as(:include) >> space_or_newline >>
+          space? >> str('@include').as(:include) >> space >>
             (conf_path | yaml_path).as(:include_path) >> eof?
         end
         rule(:source) do
