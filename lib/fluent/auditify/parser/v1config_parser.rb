@@ -19,7 +19,7 @@ module Fluent
 
         rule(:eof?) { (newline | any.absent?).maybe }
         rule(:key) { str('@').maybe >> match('[a-zA-Z0-9_]').repeat(1) }
-        rule(:path) { match('[.a-zA-Z_/-]').repeat(1) }
+        rule(:path) { match('[.a-z0-9A-Z_/\\*\\-]').repeat(1) }
         rule(:ipv4) {
           match('[0-9]').repeat(1,3) >>
             (str('.') >> match('[0-9]').repeat(1,3)).repeat(3) }
