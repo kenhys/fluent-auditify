@@ -18,7 +18,7 @@ end
 def test_mask_charges(options={})
   masked = []
   Fluent::Auditify::Plugin.charges.each do |entry|
-    attrs = entry.last
+    level, message, attrs = entry
     value = {
       path: File.basename(attrs[:path]),
       content: attrs[:content],
@@ -30,7 +30,7 @@ def test_mask_charges(options={})
     if options[:strip_content]
       value[:content].strip!
     end
-    masked << [entry.first, value]
+    masked << [level, message, value]
   end
   masked
 end

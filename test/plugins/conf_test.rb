@@ -18,8 +18,8 @@ class Fluent::AuditifyV1ConfTest < Test::Unit::TestCase
   test "duplicated @id should be detected" do
     conf = test_fixture_path("dup_id.conf")
     @plugin.parse(conf)
-    assert_equal([['foo is duplicated', {content: '  @id foo', line: 3, path: "dup_id.conf"}],
-                  ['foo is duplicated', {content: '  @id foo', line: 8, path: "dup_id.conf"}]],
+    assert_equal([[:error, 'foo is duplicated', {content: '  @id foo', line: 3, path: "dup_id.conf"}],
+                  [:error, 'foo is duplicated', {content: '  @id foo', line: 8, path: "dup_id.conf"}]],
                  test_mask_charges)
   end
 end
