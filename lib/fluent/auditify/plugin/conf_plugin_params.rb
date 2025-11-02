@@ -59,20 +59,20 @@ module Fluent::Auditify::Plugin
                   if pair[:name] == 'type' and pair[:value] == plugin_name
                     num = pair[:value].line_and_column.first
                     lines = file_get_contents(conf_path, lines: true)
-                    guilty("<#{param}> is deprecated, use @type instead",
+                    guilty(:warn, "<#{param}> is deprecated, use @type instead",
                            {path: conf_path, line: num,
                             content: lines[num],
                             suggest: lines[num - 1][:content].sub(/type/, '@type'),
                             category: :params, plugin: :params})
                   elsif pair[:name] == param and not pair.key?(:value)
                     # only key (use default value)
-                    guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
+                    guilty(:error, "unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
                   end
                 end
                 next
               elsif options[:config_version] == :v0
                 next if param == 'type'
-                guilty("unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
+                guilty(:error, "unknown <#{param}> parameter", {path: conf_path, category: :params, plugin: :params})
                 next
               end
             end
@@ -82,7 +82,7 @@ module Fluent::Auditify::Plugin
             # Until Fluentd < 1.7.x, spec does not contain supported section
             element.elements.each do |section|
               unless plugin_spec.key?(section.name)
-                guilty("unknown <#{section.name}> directive", {path: conf_path, category: :params, plugin: :params})
+                guilty(:error, "unknown <#{section.name}> directive", {path: conf_path, category: :params, plugin: :params})
               end
             end
           end

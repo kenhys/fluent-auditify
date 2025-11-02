@@ -60,7 +60,7 @@ module Fluent::Auditify::Plugin
             input_spec = plugin_defs('input', plugin_name)
             output_spec = plugin_defs('output', plugin_name)
             if input_spec.empty? and output_spec.empty?
-              guilty("unknown <#{plugin_name}> filter plugin", {path: conf_path, category: :syntax, plugin: :type})
+              guilty(:error, "unknown <#{plugin_name}> filter plugin", {path: conf_path, category: :syntax, plugin: :type})
             else
               unless input_spec.empty?
                 guess_type = 'input'
@@ -73,7 +73,7 @@ module Fluent::Auditify::Plugin
                 if pair[:name] == '@type' and pair[:value] == plugin_name
                   num = pair[:value].line_and_column.first
                   lines = file_get_contents(conf_path, lines: true)
-                  guilty("unknown <#{plugin_name}> filter plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
+                  guilty(:error, "unknown <#{plugin_name}> filter plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
                          {path: conf_path, line: num, content: lines[num - 1], category: :syntax, plugin: :type})
                 end
               end
@@ -87,7 +87,7 @@ module Fluent::Auditify::Plugin
             input_spec = plugin_defs('input', plugin_name)
             filter_spec = plugin_defs('filter', plugin_name)
             if input_spec.empty? and filter_spec.empty?
-              guilty("unknown <#{plugin_name}> output plugin", {path: conf_path, category: :syntax, plugin: :type})
+              guilty(:error, "unknown <#{plugin_name}> output plugin", {path: conf_path, category: :syntax, plugin: :type})
             else
               unless input_spec.empty?
                 guess_type = 'input'
@@ -100,7 +100,7 @@ module Fluent::Auditify::Plugin
                 if pair[:name] == '@type' and pair[:value] == plugin_name
                   num = pair[:value].line_and_column.first
                   lines = file_get_contents(conf_path, lines: true)
-                  guilty("unknown <#{plugin_name}> output plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
+                  guilty(:error, "unknown <#{plugin_name}> output plugin. Did you mean '@type #{plugin_name}' as #{guess_type} plugin?",
                          {path: conf_path, line: num, content: lines[num - 1], category: :syntax, plugin: :type})
                 end
               end
