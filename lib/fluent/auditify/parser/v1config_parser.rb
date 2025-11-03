@@ -23,7 +23,9 @@ module Fluent
         rule(:ipv4) {
           match('[0-9]').repeat(1,3) >>
             (str('.') >> match('[0-9]').repeat(1,3)).repeat(3) }
-        rule(:value) { ipv4 | integer | string | path | identifier }
+        rule(:nonspace_nonquote_char) { match('[^" \t\r\n]') }
+        rule(:unquoted_word) { (str('"').absent? >> nonspace_nonquote_char.repeat(1)) }
+        rule(:value) { string | unquoted_word }
         rule(:key_value) { space? >> key.as(:name) >> space >> value.as(:value) >>
                            space? >> newline }
         rule(:key_line) { space? >> key.as(:name) >> space_or_newline }
