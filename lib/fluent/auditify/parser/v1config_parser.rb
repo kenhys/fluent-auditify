@@ -58,11 +58,11 @@ module Fluent
         rule(:close_tag) { str('</') >> tag_name.as(:name) >> str('>') }
         rule(:section) do
           space? >> open_tag.as(:section) >> space_or_newline >>
-            (comment | key_value | section | key.as(:name) | empty_line).repeat.as(:body) >>
+            (comment | key_value | section | key.as(:name) | empty_line.as(:empty_line)).repeat.as(:body) >>
             space? >> close_tag >> space? >> eof?
         end
 
-        rule(:conf) { (comment | key_value | key.as(:name) | empty_line | section).repeat }
+        rule(:conf) { (comment | key_value | key.as(:name) | empty_line.as(:empty_line) | section).repeat }
         root :conf
       end
 
@@ -79,7 +79,7 @@ module Fluent
         end
         rule(:source) do
           space? >> str('<source>').as(:source) >> space_or_newline >>
-            (comment | empty_line | key_value | key_line | section).repeat.as(:body) >>
+            (comment | empty_line.as(:empty_line) | key_value | key_line | section).repeat.as(:body) >>
             space? >> str('</source>') >> space_or_newline.maybe >> eof?
         end
         rule(:section) do
@@ -95,7 +95,7 @@ module Fluent
         # match is reserved word
         rule(:match_directive) do
           space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
-            (comment | key_value | empty_line).repeat.as(:body) >>
+            (comment | key_value | empty_line.as(:empty_line)).repeat.as(:body) >>
             space? >> str('</match>') >> eof?
         end
         rule(:label) do
