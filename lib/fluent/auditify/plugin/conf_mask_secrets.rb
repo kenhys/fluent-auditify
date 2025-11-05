@@ -5,7 +5,7 @@ require 'fluent/auditify/parser/v1config_parser'
 
 module Fluent::Auditify::Plugin
   class MaskSecrets < Conf
-    Fluent::Auditify::Plugin.register_conf('mask_secrets', self)
+    Fluent::Auditify::Plugin.register_conf('mask_secrets@fluent-auditify', self)
 
     MASK_TABLE = {
       # generic
