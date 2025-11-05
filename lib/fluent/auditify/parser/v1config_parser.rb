@@ -84,7 +84,7 @@ module Fluent
         end
         rule(:section) do
           space? >> open_tag.as(:section) >> space_or_newline >>
-            (comment | key_value | empty_line | section).repeat.as(:body) >>
+            (comment | key_value | empty_line | key_line | section).repeat.as(:body) >>
             space? >> close_tag >> eof?
         end
         rule(:filter) do
