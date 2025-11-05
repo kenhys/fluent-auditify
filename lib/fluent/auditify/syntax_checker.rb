@@ -14,10 +14,15 @@ module Fluent
       end
 
       def run(options={})
-        @manager = Fluent::Auditify::PluginManager.new(@logger)
-        @manager.dispatch(options)
-        # instance
-        @manager.report(:console)
+        if options[:mask_only]
+          @manager = Fluent::Auditify::PluginManager.new(@logger, mask_only: options[:mask_only])
+          @manager.dispatch(options)
+        else
+          @manager = Fluent::Auditify::PluginManager.new(@logger, mask_only: options[:mask_only])
+          @manager.dispatch(options)
+          # instance
+          @manager.report(:console)
+        end
         true
       end
     end

@@ -7,9 +7,10 @@ module Fluent
     class PluginManager
       include Plugin
 
-      def initialize(logger = nil)
+      def initialize(logger = nil, mask_only: false)
         @logger = logger
         @plugins = []
+        @mask_only = mask_only
         load
         Fluent::Auditify::Plugin.registries.each do |registry|
           registry.map.each do |sym, klass|
@@ -37,7 +38,13 @@ module Fluent
       def load
         builtin_plugin_paths.each do |plugin_path|
           @logger.debug("Loading <#{plugin_path}>") if @logger
-          require plugin_path
+          if @mask_only
+            if plugin_path.include?('/lib/fluent/auditify/plugin/conf_mask_secrets.rb')
+              require plugin_path
+            end
+          else
+            require plugin_path
+          end
         end
       end
 

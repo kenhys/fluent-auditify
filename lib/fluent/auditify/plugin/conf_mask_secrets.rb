@@ -2,6 +2,7 @@ require 'fluent/config/error'
 require 'fluent/config/v1_parser'
 require 'fluent/auditify/plugin/conf'
 require 'fluent/auditify/parser/v1config_parser'
+require 'fluent/auditify/parsletutil'
 
 module Fluent::Auditify::Plugin
   class MaskSecrets < Conf
@@ -67,6 +68,8 @@ module Fluent::Auditify::Plugin
             end
           end
           polish(modified)
+          util = Fluent::Auditify::ParsletUtil.new
+          util.export(modified)
         rescue => e
           puts e.parse_failure_cause.ascii_tree
         end

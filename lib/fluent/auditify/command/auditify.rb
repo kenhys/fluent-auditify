@@ -22,7 +22,8 @@ module Fluent
             log_level: Logger::INFO,
             color: true,
             fluentd_version: :auto,
-            config_version: :v1
+            config_version: :v1,
+            mask_only: false
           }
           @parser.on('-u [CONFIG_VERSION]', '--upgrade-config [CONFIG_VERSION]',
                     "Upgrade Fluentd configuration to CONFIG_VERSION (default: v1)", :v1) { |v|
@@ -64,6 +65,9 @@ module Fluent
               exit 1
             end
             @options[:config_version] = v.intern
+          }
+          @parser.on('--mask-only', "Run in mask mode") { |v|
+            @options[:mask_only] = v
           }
         end
 

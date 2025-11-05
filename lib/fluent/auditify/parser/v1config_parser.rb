@@ -104,7 +104,7 @@ module Fluent
             space? >> str('</label>') >> eof?
         end
         rule(:directive) { system | source | filter | match_directive | include_directive | label} # | filter | match | label | empty_line }
-        rule(:conf) { (directive | comment | empty_line).repeat(1) }
+        rule(:conf) { (directive | comment | empty_line.as(:empty_line)).repeat(1) }
 
         root :conf
 
