@@ -70,7 +70,7 @@ module Fluent
 
         rule(:system) do
           space? >> str('<system>').as(:system) >> space_or_newline.maybe >>
-            (comment | key_value | empty_line).repeat.as(:body) >>
+            (comment | key_value | empty_line.as(:empty_line) | section).repeat.as(:body) >>
             space? >> str('</system>') >> space? >> eof?
         end
         rule(:include_directive) do
@@ -95,7 +95,7 @@ module Fluent
         # match is reserved word
         rule(:match_directive) do
           space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
-            (comment | key_value | empty_line.as(:empty_line)).repeat.as(:body) >>
+            (comment | key_value | empty_line.as(:empty_line) | section).repeat.as(:body) >>
             space? >> str('</match>') >> eof?
         end
         rule(:label) do
