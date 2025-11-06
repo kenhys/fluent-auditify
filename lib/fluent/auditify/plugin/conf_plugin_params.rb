@@ -30,7 +30,7 @@ module Fluent::Auditify::Plugin
 
     def parse(conf_path, options={})
       @options.merge!(options) unless options.empty?
-      if conf_path.end_with?('.yaml') or conf_path.end_with?('.yml')
+      if conf_path.end_with?('.yaml', '.yml')
       else conf_path.end_with?('.conf')
         process_conf(conf_path, options)
       end

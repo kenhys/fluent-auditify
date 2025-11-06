@@ -27,7 +27,7 @@ module Fluent
         end
 
         def yaml?(path)
-          path.end_with?('.yml') or path.end_with?('.yaml')
+          path.end_with?('.yml', '.yaml')
         end
 
         def conf?(path)
