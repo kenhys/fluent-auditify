@@ -18,7 +18,7 @@ module Fluent
               export_body(directive)
               puts "</match>"
             elsif directive[:system]
-              puts "#{' ' * @align * @indent_level}#{directive[:system].to_s}>"
+              puts "#{' ' * @align * @indent_level}#{directive[:system].to_s}"
               export_body(directive)
               puts "</system>"
             elsif directive[:empty_line]
