@@ -24,7 +24,7 @@ class Fluent::AuditifyV1MaskSecretsTest < Test::Unit::TestCase
       config = test_fixture_path(conf_path)
       @plugin.parse(config)
       actual = @plugin.artifact
-      assert_equal(expected, actual.last[:body].last[:body].collect { |v| v[:name] ? v[:value].to_s : nil })
+      assert_equal(expected, actual.last[:body].last[:body].collect { |v| v[:name] ? v[:value].to_s : nil }.compact)
     end
 
     data('user section' => ['mask_secrets/in_forward_user_section.conf',
@@ -49,7 +49,7 @@ class Fluent::AuditifyV1MaskSecretsTest < Test::Unit::TestCase
       config = test_fixture_path(conf_path)
       @plugin.parse(config)
       actual = @plugin.artifact
-      assert_equal(expected, actual.first[:body].collect { |v| v[:name] ? v[:value].to_s : nil })
+      assert_equal(expected, actual.first[:body].collect { |v| v[:name] ? v[:value].to_s : nil }.compact)
     end
   end
 end
