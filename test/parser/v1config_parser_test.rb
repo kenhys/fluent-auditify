@@ -217,9 +217,10 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
       parent_path, child_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
       child = test_parse_path_with_debug(child_path)
+      include_directive = parent[2]
       assert_equal(expected,
-                   [parent.last[:include_path].to_s,
-                    parent.last[:include_path].line_and_column,
+                   [include_directive[:include_path].to_s,
+                    include_directive[:include_path].line_and_column,
                     child.first[:body].last[:section][:name].line_and_column,
                     child.first[:body].last[:body].first[:name].to_s,
                     child.first[:body].last[:body].first[:value].to_s])
@@ -274,13 +275,14 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
       parser = Fluent::Auditify::Parser::V1ConfigParser.new
       modified = parser.eval(parent, path: File.basename(parent_path),
                              base_dir: File.dirname(test_fixture_path(parent_path)))
+      modified_source = modified[2]
       assert_equal(expected,
                    [[parent.first[:system].to_s,
-                     parent.last[:include].to_s],
+                     parent[2][:include].to_s],
                     [modified.first[:system].to_s,
-                     modified.last[:source].to_s,
+                     modified_source[:source].to_s,
                      modified.first[:__PATH__],
-                     modified.last[:__PATH__]]])
+                     modified_source[:__PATH__]]])
     end
 
     data('include section' => ['include/section.conf',
@@ -294,16 +296,17 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
       parser = Fluent::Auditify::Parser::V1ConfigParser.new
       modified = parser.eval(parent, path: File.basename(parent_path),
                              base_dir: File.dirname(test_fixture_path(parent_path)))
+      modified_source = modified.last
       assert_equal(expected,
                    [[parent.first[:system].to_s,
                      parent.last[:source].to_s],
                     [modified.first[:system].to_s,
-                     modified.last[:source].to_s,
+                     modified_source[:source].to_s,
                      modified.first[:__PATH__],
-                     modified.last[:__PATH__],
-                     modified.last[:body][1][:__PATH__],
-                     modified.last[:body][2][:__PATH__],
-                     modified.last[:body][3][:__PATH__]]])
+                     modified_source[:__PATH__],
+                     modified_source[:body][1][:__PATH__],
+                     modified_source[:body][2][:__PATH__],
+                     modified_source[:body][3][:__PATH__]]])
     end
 
 =begin

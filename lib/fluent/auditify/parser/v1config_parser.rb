@@ -115,7 +115,9 @@ module Fluent
             element[:__BASE__] = base_dir
             element[:__PATH__] = path
             unless element[:include]
-              if element[:body].collect { |v| v[:name].to_s }.any?('@include')
+              if element[:empty_line]
+                modified << element
+              elsif element[:body].collect { |v| v[:name].to_s }.any?('@include')
                 # include section
                 modified_body = []
                 element[:body].each do |body_element|
