@@ -37,7 +37,7 @@ function setup_gems() {
     esac
     case $FLUENTD_VERSION in
         1.19*)
-            echo "gem 'fluentd', '= 1.19.0'" >> Gemfile.local
+            echo "gem 'fluentd', '= 1.19.1'" >> Gemfile.local
             ;;
         1.18*)
             echo "gem 'fluentd', '= 1.18.0'" >> Gemfile.local
