@@ -68,8 +68,10 @@ module Fluent::Auditify::Plugin
             end
           end
           polish(modified)
-          util = Fluent::Auditify::ParsletUtil.new
-          util.export(modified)
+          if options[:mask_only]
+            util = Fluent::Auditify::ParsletUtil.new
+            util.export(modified)
+          end
         rescue => e
           puts e.parse_failure_cause.ascii_tree
         end
