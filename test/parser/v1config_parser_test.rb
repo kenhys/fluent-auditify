@@ -285,6 +285,19 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                      modified_source[:__PATH__]]])
     end
 
+
+    data('top-level @include *.conf' => ['@include wildcard/*.conf',
+                                         ['1', '10', 'a']])
+    test 'evaluate include directive with wildcard' do |data|
+      content, expected = data
+      parent = test_parse_content_with_debug(content)
+      parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      modified = parser.eval(parent, path: 'dummy.conf',
+                             base_dir: File.dirname(test_fixture_path('include/directive.conf')))
+      assert_equal(expected,
+                   modified.collect { |directive| directive[:body].last[:value].to_s })
+    end
+
     data('include section' => ['include/section.conf',
                                [['<system>', '<source>'],
                                 ['<system>', '<source>',
