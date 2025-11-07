@@ -52,11 +52,10 @@ module Fluent
         puts "#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>"
         @indent_level += 1
         section[:body].each do |child|
-          if child[:name]
-            puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
-          elsif child[:section]
-            p child
+          if child[:section]
             export_section(child)
+          elsif child[:name]
+            puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
           end
         end
         @indent_level -= 1
