@@ -52,7 +52,9 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
          'source' => ["<source>\n@type tail\n<parse>\n@type json\n</parse>\n</source>\n",
                       "<parse>\n  @type json\n</parse>\n"],
          'match' => ["<match>\n@type http\n<format>\n@type json\n</format>\n</match>\n",
-                     "<format>\n  @type json\n</format>\n"])
+                     "<format>\n  @type json\n</format>\n"],
+         'nested section' => ["<source>\n@type forward\n<security>\n<user>\nuser john\n</user>\n</security>\n</source>\n",
+                              "<security>\n  <user>\n    user john\n  </user>\n</security>\n"])
     test 'export_section' do |data|
       config, expected = data
       object = test_parse_content_with_debug(config)
