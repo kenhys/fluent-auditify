@@ -1,6 +1,7 @@
 require 'fluent/auditify/plugin'
 require 'fluent/auditify/reporter'
 require 'fluent/auditify/reporter'
+require 'tmpdir'
 
 module Fluent
   module Auditify
@@ -102,21 +103,54 @@ module Fluent
         false
       end
 
+      def collect_related_config_files(object)
+        files = []
+        object.each do |directive|
+          if directive[:include]
+            files << directive[:include_path].to_s
+          elsif directive[:empty_line]
+            next
+          else
+            directive[:body].each do |element|
+              if element[:value] and element[:name].to_s == '@include'
+                files << element[:value].to_s
+              end
+            end
+          end
+        end
+        files
+      end
+
+      def evacuate(options={})
+        @workspace_dir = Dir.mktmpdir('fluent-auditify')
+        @base_dir = File.dirname(options[:config])
+        parser = Fluent::Auditify::Parser::V1ConfigParser.new
+        object = parser.parse(File.read(options[:config]))
+
+        # copy configuration files into workspace
+        touched = [options[:config]]
+        touched << collect_related_config_files(object).collect { |v| File.join(@base_dir, v) }
+        touched.flatten!
+        FileUtils.cp(touched, @workspace_dir)
+      end
+
       def dispatch(options={})
+        evacuate(options)
         @plugins.each do |plugin|
           next if skip_plugin?(plugin)
 
+          config_path = File.join(@workspace_dir, File.basename(options[:config]))
           ext = plugin.supported_file_extension?
-          ext_symbol = File.extname(options[:config]).delete('.').to_sym
+          ext_symbol = File.extname(config_path).delete('.').to_sym
           unless ext.any?(ext_symbol)
-            @logger.debug("#{plugin.class} does not support #{options[:config]}")
+            @logger.debug("#{plugin.class} does not support #{config_path}")
             next
           end
 
           plugin.instance_variable_set(:@log, @logger)
           begin
             @logger.debug { "#{plugin.class}\#parse" }
-            plugin.parse(options[:config], options)
+            plugin.parse(config_path, options)
           rescue => e
             @logger.error("#{e.message}")
           end
