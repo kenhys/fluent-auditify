@@ -16,7 +16,7 @@ module Fluent
       # @param [String] name plugin name
       # @return [Class] the object which inherit from Fluent::Auditify::Plugin
       def lookup(name)
-        sym = "#{@kind}_#{name}".to_sym
+        sym = "#{@kind}/#{name}".to_sym
         return @map[sym] if @map[sym]
         raise NotFoundPluginError.new("Unknown #{@kind} plugin", name: name)
       end
@@ -24,7 +24,7 @@ module Fluent
       # @param [String] plugin_name plugin name without plugin type prefix
       # @param [Class] plugin_klass inherit from Fluent::Auditify::Plugin
       def register(kind, plugin_name, plugin_klass)
-        sym = "#{kind}_#{plugin_name}".to_sym
+        sym = "#{kind}/#{plugin_name}".to_sym
         if @map.key?(sym)
           raise DuplicatedPluginError.new("#{sym} is already registered")
         end
