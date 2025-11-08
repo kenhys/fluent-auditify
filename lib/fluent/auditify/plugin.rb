@@ -33,10 +33,19 @@ module Fluent
 
       # This method will be executed when require it
       def self.register_conf(plugin_name, plugin_klass)
+        caller_with_location = caller_locations(1, 1).first
+        if caller_with_location.path.include?('/lib/fluent/auditify/plugin')
+          gem_name = File.basename(File.dirname(caller_with_location.path.sub('/lib/fluent/auditify/plugin', '')))
+          plugin_name = "#{plugin_name}@#{gem_name}"
+        else
+          raise Fluent::ConfigError, "Fluent Auditify plugin must be installed as gem: <#{plugin_name}>."
+        end
+
         if !plugin_klass.is_a?(Class) and
           !([:supported_platform?, :parse].all? { |v| plugin_klass.respond_to?(v) })
           raise Fluent::ConfigError, "Invalid Fluent Auditify plugin implementation as 'conf' plugin: <#{plugin_name}>."
         end
+
         CONF_REGISTRY.register(:conf, plugin_name, plugin_klass)
       end
 
