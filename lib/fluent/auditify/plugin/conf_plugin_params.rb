@@ -1,6 +1,6 @@
 require 'fluent/config/error'
 require 'fluent/auditify/plugin/conf'
-require 'fluent/auditify/parser/v1config_parser'
+require 'fluent/auditify/parser/v1config'
 require 'fluent/config/v1_parser'
 require 'yaml'
 begin

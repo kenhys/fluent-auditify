@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../test_helper'
-require 'fluent/auditify/parser/v1config_parser'
+require 'fluent/auditify/parser/v1config'
 
 class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
 
