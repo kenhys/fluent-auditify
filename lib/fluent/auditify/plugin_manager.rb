@@ -151,6 +151,13 @@ module Fluent
           begin
             @logger.debug { "#{plugin.class}\#parse" }
             plugin.parse(config_path, options)
+
+            if plugin.respond_to?(:transform)
+              tree = plugin.transform(config_path, options)
+              util = Fluent::Auditify::ParsletUtil.new
+              util.export(tree, options)
+              @logger.info("Configuration files were saved at: #{@workspace_dir}")
+            end
           rescue => e
             @logger.error("#{e.message}")
           end
