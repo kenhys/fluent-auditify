@@ -109,7 +109,7 @@ module Fluent
         root :conf
 
         # expand @include directive
-        def eval(object, base_dir: "", path: "", include: true)
+        def self.eval(object, base_dir: "", path: "", include: true)
           modified = []
           object.each_with_index do |element, index|
             element[:__BASE__] = base_dir
