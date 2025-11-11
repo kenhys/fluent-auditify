@@ -56,7 +56,6 @@ module Fluent
           else
           end
         end
-        p @content.string
         @indent_level -= 1
       end
 
@@ -72,7 +71,6 @@ module Fluent
         end
         @indent_level -= 1
         @content.puts "#{' ' * @align * @indent_level}</#{section[:name].to_s}>"
-        p @content.string
       end
     end
   end
