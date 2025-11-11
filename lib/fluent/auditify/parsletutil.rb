@@ -1,65 +1,78 @@
+require 'stringio'
+
 module Fluent
   module Auditify
     class ParsletUtil
-      def initialize
+      def initialize(options={})
+        reset_style
+      end
+
+      def reset_style
         @indent_level = 0
         @align = 2
+        @content = StringIO.new
       end
 
-      def export(object)
-        begin
-          object.each do |directive|
-            if directive[:source]
-              puts "#{' ' * @align * @indent_level}#{directive[:source].to_s}"
-              export_body(directive)
-              puts "</source>"
-            elsif directive[:match]
-              puts "#{' ' * @align * @indent_level}#{directive[:match].to_s}>"
-              export_body(directive)
-              puts "</match>"
-            elsif directive[:system]
-              puts "#{' ' * @align * @indent_level}#{directive[:system].to_s}"
-              export_body(directive)
-              puts "</system>"
-            elsif directive[:empty_line]
-              puts
-            else
-            end
-          rescue => e
-            p e
+      def export(object, options={})
+      end
+
+      def to_s(object, options={})
+        object.each do |directive|
+          if directive[:source]
+            @content.puts "#{' ' * @align * @indent_level}#{directive[:source].to_s}"
+            stringify_body(directive)
+            @content.puts "</source>"
+          elsif directive[:match]
+            @content.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s}>"
+            stringify_body(directive)
+            @content.puts "</match>"
+          elsif directive[:system]
+            @content.puts "#{' ' * @align * @indent_level}#{directive[:system].to_s}"
+            stringify_body(directive)
+            @content.puts "</system>"
+          elsif directive[:empty_line]
+            @content.puts
+          else
           end
+        rescue => e
+          p e
         end
+        @content.string
       end
 
-      def export_body(directive)
+      private
+
+      def stringify_body(directive)
         @indent_level += 1
         directive[:body].each do |child|
           if child[:section]
-            export_section(child)
+            stringify_section(child)
           elsif child[:empty_line]
-            puts
+            @content.puts
           elsif child[:value]
-            puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
+            @content.puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
           elsif child[:name]
-            puts "#{' ' * @align * @indent_level}#{child[:name].to_s}"
+            @content.puts "#{' ' * @align * @indent_level}#{child[:name].to_s}"
           else
           end
         end
+        p @content.string
         @indent_level -= 1
       end
 
-      def export_section(section)
-        puts "#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>"
+      def stringify_section(section)
+        @content.puts "#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>"
         @indent_level += 1
         section[:body].each do |child|
           if child[:section]
-            export_section(child)
+            stringify_section(child)
           elsif child[:name]
-            puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
+            @content.puts "#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}"
           end
         end
         @indent_level -= 1
-        puts "#{' ' * @align * @indent_level}</#{section[:name].to_s}>"
+        @content.puts "#{' ' * @align * @indent_level}</#{section[:name].to_s}>"
+        p @content.string
       end
     end
   end

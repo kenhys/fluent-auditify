@@ -18,7 +18,11 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
     @util = Fluent::Auditify::ParsletUtil.new
   end
 
-  sub_test_case 'export' do
+  teardown do
+    @util.instance_variable_set(:@content, StringIO.new)
+  end
+
+  sub_test_case 'stringify' do
 
     data('system' => ["<system>\n  config_include_dir \"\"\n</system>\n"],
          'source' => ["<source>\n  @type forward\n</source>\n"],
@@ -26,9 +30,7 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
     test 'export' do |data|
       config, _ = data
       object = test_parse_content_with_debug(config)
-      output = capture_stdout do
-        @util.export(object)
-      end
+      output = @util.to_s(object)
       assert_equal(config, output)
     end
 
@@ -38,13 +40,13 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
                       "  @type forward\n"],
          'match' => ["<match>\n  @type stdout\n</match>\n",
                      "  @type stdout\n"])
-    test 'export_body' do
+    test 'stringify_body' do
       config, expected = data
       object = test_parse_content_with_debug(config)
-      output = capture_stdout do
-        @util.export_body(object.first)
-      end
-      assert_equal(expected, output)
+      @util.instance_variable_set(:@content, StringIO.new)
+      @util.send(:stringify_body, object.first)
+      output = @util.instance_variable_get(:@content)
+      assert_equal(expected, output.string)
     end
 
     data('system' => ["<system>\nconfig_include_dir \"\"\n<log>\nrotate_age 14\n</log>\n</system>\n",
@@ -55,13 +57,12 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
                      "<format>\n  @type json\n</format>\n"],
          'nested section' => ["<source>\n@type forward\n<security>\n<user>\nuser john\n</user>\n</security>\n</source>\n",
                               "<security>\n  <user>\n    user john\n  </user>\n</security>\n"])
-    test 'export_section' do |data|
+    test 'stringify_section' do |data|
       config, expected = data
       object = test_parse_content_with_debug(config)
-      output = capture_stdout do
-        @util.export_section(object.first[:body][1])
-      end
-      assert_equal(expected, output)
+      @util.send(:stringify_section, object.first[:body][1])
+      output = @util.instance_variable_get(:@content)
+      assert_equal(expected, output.string)
     end
   end
 end
