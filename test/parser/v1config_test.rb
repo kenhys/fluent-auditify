@@ -272,9 +272,8 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
     test 'evaluate include directive test cases' do |data|
       parent_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
-      parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      modified = parser.eval(parent, path: File.basename(parent_path),
-                             base_dir: File.dirname(test_fixture_path(parent_path)))
+      modified = Fluent::Auditify::Parser::V1ConfigParser.eval(parent, path: File.basename(parent_path),
+                                                               base_dir: File.dirname(test_fixture_path(parent_path)))
       modified_source = modified[2]
       assert_equal(expected,
                    [[parent.first[:system].to_s,
@@ -291,9 +290,8 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
     test 'evaluate include directive with wildcard' do |data|
       content, expected = data
       parent = test_parse_content_with_debug(content)
-      parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      modified = parser.eval(parent, path: 'dummy.conf',
-                             base_dir: File.dirname(test_fixture_path('include/directive.conf')))
+      modified = Fluent::Auditify::Parser::V1ConfigParser.eval(parent, path: 'dummy.conf',
+                                                               base_dir: File.dirname(test_fixture_path('include/directive.conf')))
       assert_equal(expected,
                    modified.collect { |directive| directive[:body].last[:value].to_s })
     end
@@ -306,9 +304,8 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
     test 'evaluate include section test cases' do |data|
       parent_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
-      parser = Fluent::Auditify::Parser::V1ConfigParser.new
-      modified = parser.eval(parent, path: File.basename(parent_path),
-                             base_dir: File.dirname(test_fixture_path(parent_path)))
+      modified = Fluent::Auditify::Parser::V1ConfigParser.eval(parent, path: File.basename(parent_path),
+                                                               base_dir: File.dirname(test_fixture_path(parent_path)))
       modified_source = modified.last
       assert_equal(expected,
                    [[parent.first[:system].to_s,
