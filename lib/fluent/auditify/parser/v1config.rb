@@ -125,7 +125,7 @@ module Fluent
                     parser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
                     parsed = parser.parse(File.read(File.join(base_dir, body_element[:value])))
                     parsed.each do |elem|
-                      elem[:__PATH__] = body_element[:value]
+                      elem[:__PATH__] = body_element[:value].to_s
                       modified_body << elem
                     end
                   else
