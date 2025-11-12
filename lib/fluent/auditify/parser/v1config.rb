@@ -144,7 +144,7 @@ module Fluent
             Dir.glob(pattern).sort.each do |path|
               included =  parser.parse(File.read(path))
               included.each do |child|
-                child[:__PATTERN__] = element[:include_path].to_s,
+                child[:__PATTERN__] = element[:include_path].to_s
                 child[:__PATH__] = Pathname.new(path).relative_path_from(base_dir).to_s
                 child[:__BASE__] = base_dir
                 modified << child
