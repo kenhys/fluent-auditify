@@ -24,6 +24,10 @@ module Fluent::Auditify::Plugin
       :any
     end
 
+    def supported_file_extension?
+      [:conf]
+    end
+
     def mask_body(body)
       modified_body = []
       body.each do |child|
