@@ -47,6 +47,15 @@ module Fluent
             require plugin_path
           end
         end
+
+        Gem::Specification.each { |spec|
+          if spec.name.start_with?('fluent-auditify-plugin-')
+            Dir.glob("#{spec.full_gem_path}/lib/fluent/auditify/plugin/conf_*.rb") do |path|
+              @logger.debug("Loading <#{path}>") if @logger
+              require path
+            end
+          end
+        }
       end
 
       def builtin_plugin_paths
