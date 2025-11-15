@@ -96,6 +96,21 @@ module Fluent
         end
       end
 
+      def supported_file_extension?(plugin, config)
+        unless plugin.respond_to?(:supported_file_extension?)
+          @logger.info("Plugin: <#{plugin.class}> must implement supported_file_extension?")
+          return false
+        end
+        if config.end_with?('.yml', '.yaml') and
+          plugin.supported_file_extension?.include?(:yaml)
+          return true
+        elsif config.end_with?('.conf') and
+             plugin.supported_file_extension?.include?(:conf)
+          return true
+        end
+        false
+      end
+
       def skip_plugin?(plugin)
         unless supported_plugin?(plugin)
           return true
@@ -149,10 +164,8 @@ module Fluent
           next if skip_plugin?(plugin)
 
           config_path = File.join(@workspace_dir, File.basename(options[:config]))
-          ext = plugin.supported_file_extension?
-          ext_symbol = File.extname(config_path).delete('.').to_sym
-          unless ext.any?(ext_symbol)
-            @logger.debug("#{plugin.class} does not support #{config_path}")
+          unless supported_file_extension?(plugin, config_path)
+            @logger.debug("<#{plugin.class}> is not applicable to <#{config_path}>")
             next
           end
 
