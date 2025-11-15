@@ -17,7 +17,7 @@ module Fluent::Auditify::Plugin
     end
 
     def supported_file_extension?
-      [:conf, :yaml, :yml]
+      [:conf]
     end
 
     def initialize
