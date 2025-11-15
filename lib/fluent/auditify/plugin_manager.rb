@@ -147,15 +147,23 @@ module Fluent
 
       def evacuate(options={})
         @workspace_dir = Dir.mktmpdir('fluent-auditify')
+        @logger.debug("Create workspace under <#{@workspace_dir}>")
         @base_dir = File.dirname(options[:config])
-        parser = Fluent::Auditify::Parser::V1ConfigParser.new
-        object = parser.parse(File.read(options[:config]))
 
-        # copy configuration files into workspace
-        touched = [options[:config]]
-        touched << collect_related_config_files(object).collect { |v| File.join(@base_dir, v) }
-        touched.flatten!
-        FileUtils.cp(touched, @workspace_dir)
+        if options[:config].end_with?('.conf')
+          parser = Fluent::Auditify::Parser::V1ConfigParser.new
+          object = parser.parse(File.read(options[:config]))
+
+          # copy configuration files into workspace
+          touched = [options[:config]]
+          touched << collect_related_config_files(object).collect { |v| File.join(@base_dir, v) }
+          touched.flatten!
+          @logger.debug("Copy configuration files: <#{touched}>")
+          FileUtils.cp(touched, @workspace_dir)
+        else
+          @logger.debug("Copy configuration files: <#{options[:config]}>")
+          FileUtils.cp(options[:config], @workspace_dir)
+        end
       end
 
       def dispatch(options={})
