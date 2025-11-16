@@ -52,6 +52,7 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
     test 'export same configuration in test/fixtures' do
       files = Dir.glob('test/fixtures/*.conf')
       files << Dir.glob('test/fixtures/mask_secrets/*.conf')
+      files << Dir.glob('test/fixtures/compat/buffer/*.conf')
       files.flatten.each do |fixture|
         path = fixture.sub('test/fixtures/', '')
         parser = Fluent::Auditify::Parser::V1ConfigParser.new
