@@ -69,9 +69,32 @@ module Fluent
         end
       end
 
+      def export_section(section)
+        io = @handlers[section[:__PATH__]]
+        if io
+          io.puts("#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>")
+          @indent_level += 1
+          section[:body].each do |kv|
+            if kv[:__PATH__]
+              io = @handlers[kv[:__PATH__]]
+            else
+              io = @handlers[section[:__PATH__]]
+            end
+            if kv[:value]
+              io.puts("#{' ' * @align * @indent_level}#{kv[:name].to_s} #{kv[:value].to_s}")
+            else
+              io.puts("#{' ' * @align * @indent_level}#{kv[:name].to_s}")
+            end
+          end
+          @indent_level -= 1
+          io.puts("#{' ' * @align * @indent_level}</#{section[:name].to_s}>")
+        end
+      end
+
       def export_body(directive)
         directive[:body].each do |child|
           if child[:section]
+            export_section(child)
           elsif child[:empty_line]
             if child[:__PATH__]
               io = @handlers[child[:__PATH__]]
