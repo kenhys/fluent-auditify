@@ -13,11 +13,21 @@ module Fluent
         @content = StringIO.new
       end
 
+      def handler_key(object, parent = nil)
+        if object[:__BASE__] and object[:__PATH__]
+          File.join(object[:__BASE__], object[:__PATH__])
+        elsif parent and parent[:__BASE__] and parent[:__PATH__]
+          File.join(parent[:__BASE__], parent[:__PATH__])
+        else
+          nil
+        end
+      end
+
       def collect_file_handlers(object)
         handlers = {}
         object.each do |directive|
           if directive[:empty_line]
-            key = directive[:__PATH__]
+            key = handler_key(directive, object)
             unless key and handlers.key?(key)
               if key
                 handlers[key] = File.open(key, 'w+')
@@ -25,14 +35,14 @@ module Fluent
             end
           elsif directive[:source] or directive[:match] or
                directive[:system] or directive[:filter]
-            key = directive[:__PATH__]
+            key = handler_key(directive, object)
             unless key and handlers.key?(key)
               if key
                 handlers[key] = File.open(key, 'w+')
               end
             end
             directive[:body].each do |body|
-              key = body[:__PATH__]
+              key = handler_key(body, directive)
               unless key and handlers.key?(key)
                 if key
                   handlers[key] = File.open(key, 'w+')
@@ -48,7 +58,8 @@ module Fluent
         # setup rewrite file handles
         @handlers = collect_file_handlers(object)
         object.each do |directive|
-          io = @handlers[directive[:__PATH__]]
+          key = handler_key(directive, object)
+          io = @handlers[key]
           if directive[:system]
             io.puts("#{' ' * @align * @indent_level}#{directive[:system].to_s}") if io
             export_body(directive)
