@@ -78,6 +78,12 @@ module Fluent
             io.puts('</match>') if io
           end
         end
+        @handlers.each do |path, io|
+          io.flush
+          io.fsync
+          io.close
+        end
+        @handlers = []
       end
 
       def export_section(section)
