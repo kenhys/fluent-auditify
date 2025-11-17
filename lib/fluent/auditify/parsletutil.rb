@@ -73,9 +73,15 @@ module Fluent
             export_body(directive)
             io.puts('</filter>') if io
           elsif directive[:match]
-            io.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s}"
+            if directive[:pattern]
+              io.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s} #{directive[:pattern]}>"
+            else
+              io.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s}>"
+            end
             export_body(directive)
             io.puts('</match>') if io
+          elsif directive[:empty_line]
+            io.puts
           end
         end
         @handlers.each do |path, io|
@@ -87,16 +93,14 @@ module Fluent
       end
 
       def export_section(section)
-        io = @handlers[section[:__PATH__]]
+        key = handler_key(section)
+        io = @handlers[key]
         if io
           io.puts("#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>")
           @indent_level += 1
           section[:body].each do |kv|
-            if kv[:__PATH__]
-              io = @handlers[kv[:__PATH__]]
-            else
-              io = @handlers[section[:__PATH__]]
-            end
+            key = handler_key(kv, section)
+            io = @handlers[key]
             if kv[:value]
               io.puts("#{' ' * @align * @indent_level}#{kv[:name].to_s} #{kv[:value].to_s}")
             else
@@ -109,33 +113,29 @@ module Fluent
       end
 
       def export_body(directive)
+        @indent_level += 1
         directive[:body].each do |child|
           if child[:section]
             export_section(child)
           elsif child[:empty_line]
-            if child[:__PATH__]
-              io = @handlers[child[:__PATH__]]
-              if io
-                io.puts
-              end
-            else
-              io = @handlers[directive[:__PATH__]]
-              if io
-                io.puts
-              end
-            end
+            key = handler_key(child, directive)
+            io = @handlers[key]
+            io.puts if io
           elsif child[:value]
-            io = @handlers[child[:__PATH__]]
+            key = handler_key(child, directive)
+            io = @handlers[key]
             if io
               io.puts("#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}")
             end
           elsif child[:name]
-            io = @handlers[child[:__PATH__]]
+            key = handler_key(child, directive)
+            io = @handlers[key]
             if io
               io.puts("#{' ' * @align * @indent_level}#{child[:name].to_s}")
             end
           end
         end
+        @indent_level -= 1
       end
 
       def to_s(object, options={})
