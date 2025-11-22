@@ -111,44 +111,76 @@ module Fluent
         # expand @include directive
         def self.eval(object, base_dir: "", path: "", include: true)
           modified = []
-          object.each_with_index do |element, index|
-            element[:__BASE__] = base_dir
-            element[:__PATH__] = path
-            unless element[:include]
-              if element[:empty_line]
-                modified << element
-              elsif element[:body].collect { |v| v[:name].to_s }.any?('@include')
-                # include section
-                modified_body = []
-                element[:body].each do |body_element|
-                  if body_element[:name].to_s == '@include'
-                    parser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
-                    parsed = parser.parse(File.read(File.join(base_dir, body_element[:value])))
-                    parsed.each do |elem|
-                      elem[:__PATH__] = body_element[:value].to_s
-                      modified_body << elem
-                    end
-                  else
-                    modified_body << body_element
-                  end
-                end
-                element[:body] = modified_body
-                modified << element
+          object.each do |directive|
+            directive[:__BASE__] = base_dir
+            directive[:__PATH__] = path
+            unless directive[:include]
+              if directive[:body]
+                modified << eval_body(directive, base_dir: base_dir)
               else
-                modified << element
+                modified << directive
               end
               next
             end
-            parser = Fluent::Auditify::Parser::V1ConfigParser.new
-            pattern = File.expand_path(element[:include_path].to_s, base_dir)
-            Dir.glob(pattern).sort.each do |path|
-              included =  parser.parse(File.read(path))
-              included.each do |child|
-                child[:__PATTERN__] = element[:include_path].to_s
-                child[:__PATH__] = Pathname.new(path).relative_path_from(base_dir).to_s
-                child[:__BASE__] = base_dir
-                modified << child
+            # top-level @include
+            eval_include(directive, base_dir: base_dir).each do |child|
+              child[:__PARENT__] = path
+              modified << child
+            end
+          end
+          modified
+        end
+
+        def self.eval_body(directive, base_dir: '')
+          # include section
+          modified_body = []
+          directive[:body].each do |body_element|
+            if body_element[:name].to_s == '@include'
+              parser = Fluent::Auditify::Parser::V1ConfigSectionParser.new
+              pattern = File.expand_path(body_element[:value].to_s, base_dir)
+              Dir.glob(pattern).sort.each do |path|
+                object = parser.parse(File.read(path))
+                object.each do |element|
+                  element[:__PATTERN__] = body_element[:value].to_s
+                  element[:__PATH__] = File.basename(path)
+                  if element[:section]
+                    pp eval_body(element, base_dir: base_dir)
+                    element[:body] = eval_body(element, base_dir: base_dir)[:body]
+                    modified_body << element
+                  else
+                    modified_body << element
+                  end
+                end
               end
+            elsif body_element[:section]
+              section_body = []
+              body_element[:body].each do |child|
+                child[:__PATH__] = body_element[:__PATH__]
+                section_body << child
+              end
+              body_element[:body] = section_body
+              modified_body << body_element
+            else
+              body_element[:__PATH__] = directive[:__PATH__]
+              modified_body << body_element
+            end
+          end
+          directive[:body] = modified_body
+          directive
+        end
+
+        def self.eval_include(directive, base_dir: '')
+          parser = Fluent::Auditify::Parser::V1ConfigParser.new
+          pattern = File.expand_path(directive[:include_path].to_s, base_dir)
+          modified = []
+          Dir.glob(pattern).sort.each do |path|
+            included =  parser.parse(File.read(path))
+            included.each do |included_directive|
+              included_directive[:__PATTERN__] = directive[:include_path].to_s
+              included_directive[:__PATH__] = Pathname.new(path).relative_path_from(base_dir).to_s
+              included_directive[:__BASE__] = base_dir
+              included_directive[:body] = eval_body(included_directive, base_dir: base_dir)[:body]
+              modified << included_directive
             end
           end
           modified
