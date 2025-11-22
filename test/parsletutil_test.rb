@@ -27,14 +27,12 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
   end
 
   sub_test_case 'export' do
-    data('include directive' => ['include/directive.conf',
-                                 ['include/directive.conf', 'include/included_directives.conf']],
-         'include section' => ['include/section.conf',
-                               ['include/section.conf', 'include/included_section.conf']],
-         'include param' => ['include/params.conf',
-                               ['include/params.conf', 'include/included_params.conf']])
-    test 'export same configuration' do |data|
-      config, sources = data
+    data('include directive' => ['include/directive.conf', 'include/included_directives.conf'],
+         'include section' => ['include/section.conf', 'include/included_section.conf'],
+         'include param' => ['include/params.conf', 'include/included_params.conf'])
+    test 'export same configuration with eval' do |data|
+      sources = data
+      config = sources.first
       object = test_parse_path_with_debug(config)
       Dir.mktmpdir do |tmpdir|
         FileUtils.cp(sources.collect { |v| test_fixture_path(v)}, tmpdir)
@@ -43,8 +41,8 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
                                        path: File.basename(config))
         @util.export(modified)
         sources.each do |path|
-          assert_equal(File.read(test_fixture_path(path)),
-                       File.read(File.join(tmpdir, File.basename(path))))
+          exported_path = File.join(tmpdir, File.basename(path))
+          assert_equal(File.read(test_fixture_path(path)), File.read(exported_path))
         end
       end
     end
