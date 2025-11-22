@@ -231,7 +231,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                             ['included_section.conf',
                                              [7, 12],
                                              'parse',
-                                             [1, 2]]])
+                                             [1, 4]]])
     test 'include section test cases' do |data|
       parent_path, child_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
@@ -249,7 +249,7 @@ class Fluent::AuditifyV1ConfigParserTest < Test::Unit::TestCase
                                          ['included_params.conf',
                                           [7, 12],
                                           ['port','bind'],
-                                          [[1, 1], [2, 1]]]])
+                                          [[1, 3], [2, 3]]]])
     test 'include params test cases' do |data|
       parent_path, child_path, expected = data
       parent = test_parse_path_with_debug(parent_path)
