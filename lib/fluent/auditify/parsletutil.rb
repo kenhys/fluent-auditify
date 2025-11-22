@@ -109,6 +109,10 @@ module Fluent
           end
           @indent_level -= 1
           io.puts("#{' ' * @align * @indent_level}</#{section[:name].to_s}>")
+      def export_line(key, message)
+        io = @handlers[key]
+        if io
+          io.puts("#{' ' * @align * @indent_level}#{message}")
         end
       end
 
