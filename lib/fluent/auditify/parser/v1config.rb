@@ -144,7 +144,6 @@ module Fluent
                   element[:__PATTERN__] = body_element[:value].to_s
                   element[:__PATH__] = File.basename(path)
                   if element[:section]
-                    pp eval_body(element, base_dir: base_dir)
                     element[:body] = eval_body(element, base_dir: base_dir)[:body]
                     modified_body << element
                   else
