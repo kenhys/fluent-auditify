@@ -120,7 +120,7 @@ module Fluent
             export_line(key, "#{kv[:name].to_s} #{kv[:value].to_s}")
           else
             export_line(key, "#{kv[:name].to_s}")
-            end
+          end
         end
         @indent_level -= 1
         export_line(key, "</#{section[:name].to_s}>")
