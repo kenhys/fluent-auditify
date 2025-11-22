@@ -95,7 +95,7 @@ module Fluent
         # match is reserved word
         rule(:match_directive) do
           space? >> str('<match').as(:match) >> space? >> pattern?.as(:pattern) >> str('>') >> space_or_newline >>
-            (comment | key_value | empty_line.as(:empty_line) | section).repeat.as(:body) >>
+            (comment | key_value | empty_line.as(:empty_line) | key_line | section).repeat.as(:body) >>
             space? >> str('</match>') >> eof?
         end
         rule(:label) do
