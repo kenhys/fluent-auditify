@@ -15,7 +15,11 @@ module Fluent
 
       def handler_key(object, parent = nil)
         if object[:__BASE__] and object[:__PATH__]
+          # directive
           File.join(object[:__BASE__], object[:__PATH__])
+        elsif parent and parent[:__BASE__] and object[:__PATH__]
+          # section, body
+          File.join(parent[:__BASE__], object[:__PATH__])
         elsif parent and parent[:__BASE__] and parent[:__PATH__]
           File.join(parent[:__BASE__], parent[:__PATH__])
         else
@@ -57,31 +61,45 @@ module Fluent
       def export(object, options={})
         # setup rewrite file handles
         @handlers = collect_file_handlers(object)
+        @include_flushed = {}
         object.each do |directive|
           key = handler_key(directive, object)
-          io = @handlers[key]
           if directive[:system]
-            io.puts("#{' ' * @align * @indent_level}#{directive[:system].to_s}") if io
+            export_line(key, directive[:system].to_s)
             export_body(directive)
-            io.puts('</system>') if io
+            export_line(key, '</system>')
           elsif directive[:source]
-            io.puts "#{' ' * @align * @indent_level}#{directive[:source].to_s}" if io
+            export_line(key, directive[:source].to_s)
             export_body(directive)
-            io.puts('</source>') if io
+            export_line(key, '</source>')
+            if directive[:__PATTERN__] and directive[:__PARENT__]
+              key = File.join(directive[:__BASE__], directive[:__PARENT__])
+              unless @include_flushed[key]
+                export_line(key, "@include #{directive[:__PATTERN__]}")
+                @include_flushed[key] = true
+              end
+            end
           elsif directive[:filter]
-            io.puts "#{' ' * @align * @indent_level}#{directive[:filter].to_s}" if io
+            export_line(key, directive[:filter].to_s)
             export_body(directive)
-            io.puts('</filter>') if io
+            export_line(key, '</filter>')
+            if directive[:__PATTERN__] and directive[:__PARENT__]
+              key = File.join(directive[:__BASE__], directive[:__PARENT__])
+              unless @include_flushed[key]
+                export_line(key, "@include #{directive[:__PATTERN__]}")
+                @include_flushed[key] = true
+              end
+            end
           elsif directive[:match]
             if directive[:pattern]
-              io.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s} #{directive[:pattern]}>"
+              export_line(key, "#{directive[:match].to_s} #{directive[:__PATTERN__]}>")
             else
-              io.puts "#{' ' * @align * @indent_level}#{directive[:match].to_s}>"
+              export_line(key, "#{directive[:match].to_s}>")
             end
             export_body(directive)
-            io.puts('</match>') if io
+            export_line(key, '</match>')
           elsif directive[:empty_line]
-            io.puts
+            export_line(key, '')
           end
         end
         @handlers.each do |path, io|
@@ -92,23 +110,34 @@ module Fluent
         @handlers = []
       end
 
-      def export_section(section)
-        key = handler_key(section)
-        io = @handlers[key]
-        if io
-          io.puts("#{' ' * @align * @indent_level}<#{section[:section][:name].to_s}>")
-          @indent_level += 1
-          section[:body].each do |kv|
-            key = handler_key(kv, section)
-            io = @handlers[key]
-            if kv[:value]
-              io.puts("#{' ' * @align * @indent_level}#{kv[:name].to_s} #{kv[:value].to_s}")
-            else
-              io.puts("#{' ' * @align * @indent_level}#{kv[:name].to_s}")
+      def export_section(section, directive)
+        key = handler_key(section, directive)
+        export_line(key, "<#{section[:section][:name].to_s}>")
+        @indent_level += 1
+        section[:body].each do |kv|
+          key = handler_key(kv, directive)
+          if kv[:value]
+            export_line(key, "#{kv[:name].to_s} #{kv[:value].to_s}")
+          else
+            export_line(key, "#{kv[:name].to_s}")
             end
+        end
+        @indent_level -= 1
+        export_line(key, "</#{section[:name].to_s}>")
+        export_at_include(section, directive)
+      end
+
+      def export_at_include(object, parent)
+        pattern = object[:__PATTERN__]
+        if pattern
+          unless @include_flushed[pattern]
+            key = handler_key(parent, parent)
+            export_line(key, "@include #{pattern}")
+            @include_flushed[pattern] = true
           end
-          @indent_level -= 1
-          io.puts("#{' ' * @align * @indent_level}</#{section[:name].to_s}>")
+        end
+      end
+
       def export_line(key, message)
         io = @handlers[key]
         if io
@@ -120,23 +149,18 @@ module Fluent
         @indent_level += 1
         directive[:body].each do |child|
           if child[:section]
-            export_section(child)
+            export_section(child, directive)
           elsif child[:empty_line]
             key = handler_key(child, directive)
-            io = @handlers[key]
-            io.puts if io
+            export_line(key, "")
           elsif child[:value]
             key = handler_key(child, directive)
-            io = @handlers[key]
-            if io
-              io.puts("#{' ' * @align * @indent_level}#{child[:name].to_s} #{child[:value].to_s}")
-            end
+            export_line(key, "#{child[:name].to_s} #{child[:value].to_s}")
+            export_at_include(child, directive)
           elsif child[:name]
             key = handler_key(child, directive)
-            io = @handlers[key]
-            if io
-              io.puts("#{' ' * @align * @indent_level}#{child[:name].to_s}")
-            end
+            export_line(key, child[:name].to_s)
+            export_at_include(child, directive)
           end
         end
         @indent_level -= 1
