@@ -33,6 +33,7 @@ module Fluent
                    else
                      test_parse_content_with_debug(path_or_content, klass)
                    end
+          object
         end
 
         def test_parse_content_with_debug(content, klass: Fluent::Auditify::Parser::V1ConfigParser)
