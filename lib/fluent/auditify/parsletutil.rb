@@ -92,7 +92,7 @@ module Fluent
             end
           elsif directive[:match]
             if directive[:pattern]
-              export_line(key, "#{directive[:match].to_s} #{directive[:__PATTERN__]}>")
+              export_line(key, "#{directive[:match].to_s} #{directive[:pattern]}>")
             else
               export_line(key, "#{directive[:match].to_s}>")
             end
