@@ -109,21 +109,23 @@ module Fluent
         root :conf
 
         # expand @include directive
-        def self.eval(object, base_dir: "", path: "", include: true)
+        def eval(object, options={})
+          base_dir = options[:base_dir] || ''
+          path = options[:path] || ''
           modified = []
           object.each do |directive|
             directive[:__BASE__] = base_dir
             directive[:__PATH__] = path
             unless directive[:include]
               if directive[:body]
-                modified << eval_body(directive, base_dir: base_dir)
+                modified << eval_body(directive, options)
               else
                 modified << directive
               end
               next
             end
             # top-level @include
-            eval_include(directive, base_dir: base_dir).each do |child|
+            eval_include(directive, options).each do |child|
               child[:__PARENT__] = path
               modified << child
             end
@@ -131,7 +133,23 @@ module Fluent
           modified
         end
 
-        def self.eval_body(directive, base_dir: '')
+        def find_nth_element(object, nth: 1, elements: [])
+          count = 0
+          elements.each do |element|
+            if element[object.intern]
+              count += 1
+              if nth == count
+                return element
+              end
+            end
+          end
+          nil
+        end
+
+        private
+
+        def eval_body(directive, options={})
+          base_dir = options[:base_dir] || ''
           # include section
           modified_body = []
           directive[:body].each do |body_element|
@@ -144,7 +162,7 @@ module Fluent
                   element[:__PATTERN__] = body_element[:value].to_s
                   element[:__PATH__] = File.basename(path)
                   if element[:section]
-                    element[:body] = eval_body(element, base_dir: base_dir)[:body]
+                    element[:body] = eval_body(element, options)[:body]
                     modified_body << element
                   else
                     modified_body << element
@@ -168,7 +186,8 @@ module Fluent
           directive
         end
 
-        def self.eval_include(directive, base_dir: '')
+        def eval_include(directive, options={})
+          base_dir = options[:base_dir] || ''
           parser = Fluent::Auditify::Parser::V1ConfigParser.new
           pattern = File.expand_path(directive[:include_path].to_s, base_dir)
           modified = []
@@ -178,25 +197,13 @@ module Fluent
               included_directive[:__PATTERN__] = directive[:include_path].to_s
               included_directive[:__PATH__] = Pathname.new(path).relative_path_from(base_dir).to_s
               included_directive[:__BASE__] = base_dir
-              included_directive[:body] = eval_body(included_directive, base_dir: base_dir)[:body]
+              included_directive[:body] = eval_body(included_directive, options)[:body]
               modified << included_directive
             end
           end
           modified
         end
 
-        def find_nth_element(object, nth: 1, elements: [])
-          count = 0
-          elements.each do |element|
-            if element[object.intern]
-              count += 1
-              if nth == count
-                return element
-              end
-            end
-          end
-          nil
-        end
       end
     end
   end

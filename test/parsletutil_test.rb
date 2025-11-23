@@ -36,9 +36,12 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
       object = test_parse_path_with_debug(config)
       Dir.mktmpdir do |tmpdir|
         FileUtils.cp(sources.collect { |v| test_fixture_path(v)}, tmpdir)
-        modified = V1ConfigParser.eval(object,
-                                       base_dir: tmpdir,
-                                       path: File.basename(config))
+        parser = V1ConfigParser.new
+        options = {
+          base_dir: tmpdir,
+          path: File.basename(config)
+        }
+        modified = parser.eval(object, options)
         @util.export(modified)
         sources.each do |path|
           exported_path = File.join(tmpdir, File.basename(path))
@@ -58,9 +61,8 @@ class Fluent::AuditifyParsletUtilTest < Test::Unit::TestCase
           object = parser.parse(File.read(test_fixture_path(path)))
           Dir.mktmpdir do |tmpdir|
             FileUtils.cp(fixture, tmpdir)
-            modified = V1ConfigParser.eval(object,
-                                           base_dir: tmpdir,
-                                           path: File.basename(fixture))
+            options = { base_dir: tmpdir, path: File.basename(fixture) }
+            modified = parser.eval(object, options)
             @util.export(modified)
             assert_equal(File.read(test_fixture_path(path)),
                          File.read(File.join(tmpdir, File.basename(path))))
